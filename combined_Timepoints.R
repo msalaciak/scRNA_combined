@@ -66,13 +66,15 @@ timepoint_5[["percent.mt"]] <- PercentageFeatureSet(timepoint_5, pattern = "^MT-
 timepoint_6[["percent.mt"]] <- PercentageFeatureSet(timepoint_6, pattern = "^MT-")
 
 #combine seurat objects into a list
-seuratObjectList <- c(timepoint_1,timepoint_2,timepoint_3,timepoint_4,timepoint_5,timepoint_6)
+seuratObjectList <- list(timepoint_1,timepoint_2,timepoint_3,timepoint_4,timepoint_5,timepoint_6)
   
 for (i in 1:length(seuratObjectList)){
 print(FeatureScatter(seuratObjectList[[i]], feature1 = "nCount_RNA", feature2 = "percent.mt"))
 print(FeatureScatter(seuratObjectList[[i]], feature1 = "nCount_RNA", feature2 = "nFeature_RNA"))
 
 }
+
+
 
 #using information from plots, we can filter based on these values
 #t ime point 1 -6
@@ -90,46 +92,79 @@ seuratObjectList[[4]] <- subset(seuratObjectList[[4]], subset = nFeature_RNA > 2
 seuratObjectList[[5]] <- subset(seuratObjectList[[5]], subset = nFeature_RNA > 200 & nFeature_RNA < 3600 & percent.mt < 19)
 seuratObjectList[[6]] <- subset(seuratObjectList[[6]], subset = nFeature_RNA > 200 & nFeature_RNA < 5100 & percent.mt < 15)
 
+
+
 #normalize data IF USING FOR LOOP FOR LIST
 # for (i in 1:length(seuratObjectList)){
 #   seuratObjectList[[i]] <- NormalizeData(seuratObjectList[[i]], normalization.method = "LogNormalize", scale.factor = 10000)
-#   seuratObjectList[[i]] <- FindVariableFeatures(seuratObjectList[[i]], selection.method = "vst", 
+#   seuratObjectList[[i]] <- FindVariableFeatures(seuratObjectList[[i]], selection.method = "vst",
 #                                                 dispersion.cutoff = c(0.5, Inf),mean.cutoff = c(0.0125, 3),nfeatures = 2000)
 # }
 
-#combined seurat objects
-combinedSeuratObjects <- merge(seuratObjectList[[1]],list(seuratObjectList[[2]],seuratObjectList[[3]],seuratObjectList[[4]],
-                                                       seuratObjectList[[5]],seuratObjectList[[6]]), project = "combined_pbmc")
-#normalize, find variable genes and scale data
-combinedSeuratObjects <- NormalizeData(combinedSeuratObjects, normalization.method = "LogNormalize", scale.factor = 10000)
-combinedSeuratObjects <- FindVariableFeatures(combinedSeuratObjects, selection.method = "vst",
-                                                dispersion.cutoff = c(0.5, Inf),mean.cutoff = c(0.0125, 3),nfeatures = 2000)
-combinedSeuratObjects <- ScaleData(combinedSeuratObjects)
-
-#run PCA
-
-combinedSeuratObjects <- RunPCA(combinedSeuratObjects, features = VariableFeatures(object = combinedSeuratObjects))
-print(combinedSeuratObjects[["pca"]], dims = 1:5, nfeatures = 5)
-print(VizDimLoadings(combinedSeuratObjects, dims = 1:2, reduction = "pca"))
-print(DimPlot(combinedSeuratObjects, reduction = "pca"))
-print(DimHeatmap(combinedSeuratObjects, dims = 1, cells = 500, balanced = TRUE))
-print(DimHeatmap(combinedSeuratObjects, dims = 1:15, cells = 500, balanced = TRUE))
-combinedSeuratObjects <- JackStraw(combinedSeuratObjects, num.replicate = 100)
-combinedSeuratObjects <- ScoreJackStraw(combinedSeuratObjects, dims = 1:20)
-print(JackStrawPlot(combinedSeuratObjects, dims = 1:20))
-print(ElbowPlot(combinedSeuratObjects))
+seuratObjectList <- lapply(X = seuratObjectList, FUN = function(x) {
+  x <- NormalizeData(x,normalization.method = "LogNormalize", scale.factor = 10000)
+  x <- FindVariableFeatures(x, selection.method = "vst",
+                            dispersion.cutoff = c(0.5, Inf),mean.cutoff = c(0.0125, 3),nfeatures = 3000)
+})
 
 
 
-combinedSeuratObjects <- FindNeighbors(combinedSeuratObjects, dims = 1:15)
-combinedSeuratObjects <- FindClusters(combinedSeuratObjects, resolution = 1.2, algorithm=4)
+# 
+#integrate data
+pbmc.anchors <- FindIntegrationAnchors(object.list = seuratObjectList, dims = 1:20)
+pbmc.combined <- IntegrateData(anchorset = pbmc.anchors, dims = 1:20)
+
+DefaultAssay(pbmc.combined) <- "integrated"
 
 
-combinedSeuratObjects.umap <- RunUMAP(combinedSeuratObjects, dims = 1:15, label=TRUE)
-combinedSeuratObjects <- RunTSNE(combinedSeuratObjects, dims = 1:15,label = TRUE)
+#MERGE OPTION IF NEEDED
+# pbmc.combined <- merge(seuratObjectList[[1]],list(seuratObjectList[[2]],seuratObjectList[[3]],seuratObjectList[[4]],
+#                                                   seuratObjectList[[5]],seuratObjectList[[6]]), project = "combined_pbmc")
+# pbmc.combined <- NormalizeData(pbmc.combined, normalization.method = "LogNormalize", scale.factor = 10000)
+# pbmc.combined <- FindVariableFeatures(pbmc.combined, selection.method = "vst",dispersion.cutoff = c(0.5, Inf),
+#                                       mean.cutoff = c(0.0125, 3),nfeatures = 2000)
+# pbmc.combined <- ScaleData(pbmc.combined)
 
-print(DimPlot(combinedSeuratObjects, reduction = "tsne",pt.size=.75))
-print(DimPlot(combinedSeuratObjects.umap, reduction = "umap",pt.size=.75))
+
+
+pbmc.combined <- ScaleData(pbmc.combined, verbose = TRUE)
+pbmc.combined <- RunPCA(pbmc.combined, npcs = 30, verbose = TRUE)
+
+pbmc.combined <- FindNeighbors(pbmc.combined, reduction = "pca", dims = 1:20)
+pbmc.combined <- FindClusters(pbmc.combined,resolution = 0.8)
+
+pbmc.combined <- RunUMAP(pbmc.combined, dims = 1:20)
+
+# Visualization
+p1 <- DimPlot(pbmc.combined, reduction = "umap", group.by = "Timepoint")
+p2 <- DimPlot(pbmc.combined, reduction = "umap", label = TRUE)
+print(p1)
+print(p2)
+
+#integrated count = 26739
+Reduce("+",table ( Idents(pbmc.combined) ) )
+
+
+
+DimPlot(pbmc.combined,reduction = "umap", split.by = "iRAE")
+DimPlot(pbmc.combined,reduction = "umap", split.by = "Disease_status")
+
+timepoint_1.subset <- subset(x = pbmc.combined, subset = Timepoint == "1")
+timepoint_2.subset <- subset(x = pbmc.combined, subset = Timepoint == "2")
+timepoint_3.subset <- subset(x = pbmc.combined, subset = Timepoint == "3")
+timepoint_4.subset <- subset(x = pbmc.combined, subset = Timepoint == "4")
+timepoint_5.subset <- subset(x = pbmc.combined, subset = Timepoint == "5")
+timepoint_6.subset <- subset(x = pbmc.combined, subset = Timepoint == "6")
+
+
+DimPlot(timepoint_1.subset,reduction = "umap") +ggtitle("Timepoint 1")
+DimPlot(timepoint_2.subset,reduction = "umap") +ggtitle("Timepoint 2")
+DimPlot(timepoint_3.subset,reduction = "umap") +ggtitle("Timepoint 3")
+DimPlot(timepoint_4.subset,reduction = "umap") +ggtitle("Timepoint 4")
+DimPlot(timepoint_5.subset,reduction = "umap") +ggtitle("Timepoint 5")
+DimPlot(timepoint_6.subset,reduction = "umap") +ggtitle("Timepoint 6")
+
+
 
 
 
