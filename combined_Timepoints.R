@@ -7,6 +7,9 @@ library(tidyverse)
 library(RCurl)
 library(cowplot)
 library(pheatmap)
+library(clusterProfiler)
+library("org.Dm.eg.db",character.only = TRUE)
+library(DOSE)
 
 #load datasets of each time point
 timepoint_1.data <- Read10X(data.dir ="/home/matthew/datatransfer/mercier/151231/outs/filtered_gene_bc_matrices/GRCh38")
@@ -15,6 +18,7 @@ timepoint_3.data <- Read10X(data.dir ="/home/matthew/datatransfer/mercier/161962
 timepoint_4.data <- Read10X(data.dir ="/home/matthew/datatransfer/mercier/171094/outs/filtered_gene_bc_matrices/GRCh38")
 timepoint_5.data <- Read10X(data.dir ="/home/matthew/datatransfer/mercier/171642/outs/filtered_gene_bc_matrices/GRCh38")
 timepoint_6.data <- Read10X(data.dir ="/home/matthew/datatransfer/mercier/180251/outs/filtered_gene_bc_matrices/GRCh38")
+
 
 #create seurat objects for each
 timepoint_1 <-CreateSeuratObject(counts = timepoint_1.data, project = "pbmc timepoint 1", min.cells =3,min.features=200)
@@ -167,7 +171,101 @@ DimPlot(timepoint_6.subset,reduction = "umap") +ggtitle("Timepoint 6")
 
 
 
+#switch back pbmc.combined assay to RNA from integrated for find markers but switch back to integration for visual
+DefaultAssay(pbmc.combined) <- "RNA"
 
+pbmc.markers <- FindAllMarkers(pbmc.combined, only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0.05)
+
+for (i in 0:19){
+  print("clustering ")
+  print(i)
+  markers <- FindMarkers(pbmc.combined, ident.1 = i, only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0.05)
+
+  markers <- cbind(gene = rownames(markers), markers)
+  rownames(markers) <- 1:nrow(markers)
+
+  markers$cluster <- i
+  markers<- markers[, c(2,3,4,5,6,1,7)]
+
+  nam <- paste("cluster", i,".markers", sep = "")
+  assign(nam, markers)
+
+}
+
+pbmc_full.markers <-rbind(cluster0.markers, cluster1.markers, cluster2.markers,cluster3.markers,cluster4.markers,cluster5.markers
+                          ,cluster6.markers,cluster7.markers,cluster8.markers,cluster9.markers,cluster10.markers,cluster11.markers
+                          ,cluster12.markers,cluster13.markers,cluster14.markers,cluster15.markers,cluster16.markers,cluster17.markers
+                          ,cluster18.markers,cluster19.markers)
+
+#CONTROL 
+# control.data <- Read10X(data.dir ="/home/matthew/Research/pbmc_controls/filtered_gene_bc_matrices/GRCh38")
+
+# control <-CreateSeuratObject(counts = control.data, project = "Controls", min.cells =3,min.features=200)
+# 
+# control[["percent.mt"]] <- PercentageFeatureSet(control, pattern = "^MT-")
+# print(FeatureScatter(control, feature1 = "nCount_RNA", feature2 = "percent.mt"))
+# print(FeatureScatter(control, feature1 = "nCount_RNA", feature2 = "nFeature_RNA"))
+# 
+# control <- subset(control, subset = nFeature_RNA > 200 & nFeature_RNA < 5300 & percent.mt < 16)
+# 
+# control <- NormalizeData(control, normalization.method = "LogNormalize", scale.factor = 10000)
+# control<- FindVariableFeatures(control, selection.method = "vst",
+#                                                 dispersion.cutoff = c(0.5, Inf),mean.cutoff = c(0.0125, 3),nfeatures = 3000)
+# control <- ScaleData(control, verbose = TRUE)
+# control <- RunPCA(control, npcs = 30, verbose = TRUE)
+# 
+# control <- FindNeighbors(control, reduction = "pca", dims = 1:20)
+# control <- FindClusters(control,resolution = 0.8)
+# 
+# control <- RunUMAP(control, dims = 1:20)
+
+# Visualization
+
+DimPlot(control, reduction = "umap", label = TRUE)
+
+# saveRDS(pbmc.combined, file = "pbmc_combined.rds")
+
+
+cluster2_logfc <- cluster2.markers$avg_logFC
+
+
+cluster2_entrez <- mapIds(org.Hs.eg.db, cluster2.markers$gene, 'ENTREZID', 'SYMBOL')
+
+names(cluster2_logfc) <- cluster2.markers$gene
+cluster2_logfc <- cluster2_logfc[!is.na(cluster2_logfc)]
+cluster2_logfc = sort(cluster2_logfc, decreasing = TRUE)
+
+
+gse_cluster2 <- gseGO(
+  cluster2_logfc,
+  ont = "ALL",
+  OrgDb =org.Hs.eg.db,
+  keyType = "SYMBOL",
+  exponent = 1,
+  minGSSize = 10,
+  maxGSSize = 500,
+  eps = 1e-10,
+  pvalueCutoff = 0.05,
+  pAdjustMethod = "BH",
+  verbose = TRUE,
+  seed = FALSE,
+  by = "fgsea"
+)
+
+cluster2_UNIPROT <- mapIds(org.Hs.eg.db, cluster2.markers$gene, 'UNIPROT', 'SYMBOL')
+cluster2_logfc <- cluster2.markers$avg_logFC
+names(cluster2_logfc) <- cluster2_UNIPROT
+cluster2_logfc <- cluster2_logfc[!is.na(names(cluster2_logfc))]
+cluster2_logfc <-sort(cluster2_logfc, decreasing = TRUE)
+
+
+kegg_cluster2 <- gseKEGG(geneList= cluster2_logfc,
+                keyType = "uniprot",
+               organism     = "hsa",
+               minGSSize    = 20,
+               pvalueCutoff = 0.05,
+               verbose      = TRUE,
+               eps=0)
 
 
 
