@@ -6,3 +6,5 @@
 .rds
 .Rds
 .tsv
+Data4Rmd.RData
+azimuth_umap.Rds
