@@ -10,6 +10,8 @@ library(pheatmap)
 library(clusterProfiler)
 library("org.Dm.eg.db",character.only = TRUE)
 library(DOSE)
+library(plotly)
+theme_set(theme_cowplot())
 
 #load datasets of each time point
 timepoint_1.data <- Read10X(data.dir ="/home/matthew/datatransfer/mercier/151231/outs/filtered_gene_bc_matrices/GRCh38")
@@ -140,7 +142,7 @@ pbmc.combined <- FindClusters(pbmc.combined,resolution = 0.8)
 pbmc.combined <- RunUMAP(pbmc.combined, dims = 1:20)
 
 # Visualization
-p1 <- DimPlot(pbmc.combined, reduction = "umap", group.by = "Timepoint")
+p1 <- DimPlot(pbmc.combined, reduction = "umap", split.by = "Timepoint", label=TRUE)
 p2 <- DimPlot(pbmc.combined, reduction = "umap", label = TRUE)
 print(p1)
 print(p2)
@@ -174,6 +176,7 @@ DimPlot(timepoint_6.subset,reduction = "umap") +ggtitle("Timepoint 6")
 #switch back pbmc.combined assay to RNA from integrated for find markers but switch back to integration for visual
 DefaultAssay(pbmc.combined) <- "RNA"
 
+
 pbmc.markers <- FindAllMarkers(pbmc.combined, only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0.05)
 
 for (i in 0:19){
@@ -197,54 +200,30 @@ pbmc_full.markers <-rbind(cluster0.markers, cluster1.markers, cluster2.markers,c
                           ,cluster12.markers,cluster13.markers,cluster14.markers,cluster15.markers,cluster16.markers,cluster17.markers
                           ,cluster18.markers,cluster19.markers)
 
-#CONTROL 
-# control.data <- Read10X(data.dir ="/home/matthew/Research/pbmc_controls/filtered_gene_bc_matrices/GRCh38")
 
-# control <-CreateSeuratObject(counts = control.data, project = "Controls", min.cells =3,min.features=200)
-# 
-# control[["percent.mt"]] <- PercentageFeatureSet(control, pattern = "^MT-")
-# print(FeatureScatter(control, feature1 = "nCount_RNA", feature2 = "percent.mt"))
-# print(FeatureScatter(control, feature1 = "nCount_RNA", feature2 = "nFeature_RNA"))
-# 
-# control <- subset(control, subset = nFeature_RNA > 200 & nFeature_RNA < 5300 & percent.mt < 16)
-# 
-# control <- NormalizeData(control, normalization.method = "LogNormalize", scale.factor = 10000)
-# control<- FindVariableFeatures(control, selection.method = "vst",
-#                                                 dispersion.cutoff = c(0.5, Inf),mean.cutoff = c(0.0125, 3),nfeatures = 3000)
-# control <- ScaleData(control, verbose = TRUE)
-# control <- RunPCA(control, npcs = 30, verbose = TRUE)
-# 
-# control <- FindNeighbors(control, reduction = "pca", dims = 1:20)
-# control <- FindClusters(control,resolution = 0.8)
-# 
-# control <- RunUMAP(control, dims = 1:20)
 
-# Visualization
 
-DimPlot(control, reduction = "umap", label = TRUE)
 
 # saveRDS(pbmc.combined, file = "pbmc_combined.rds")
 
 
-cluster2_logfc <- cluster2.markers$avg_logFC
+cluster16_logfc <- cluster16.markers$avg_logFC
 
 
-cluster2_entrez <- mapIds(org.Hs.eg.db, cluster2.markers$gene, 'ENTREZID', 'SYMBOL')
-
-names(cluster2_logfc) <- cluster2.markers$gene
-cluster2_logfc <- cluster2_logfc[!is.na(cluster2_logfc)]
-cluster2_logfc = sort(cluster2_logfc, decreasing = TRUE)
+names(cluster16_logfc) <- cluster16.markers$gene
+cluster16_logfc <- cluster16_logfc[!is.na(cluster16_logfc)]
+cluster16_logfc = sort(cluster16_logfc, decreasing = TRUE)
 
 
-gse_cluster2 <- gseGO(
-  cluster2_logfc,
+gse_cluster16 <- gseGO(
+  cluster16_logfc,
   ont = "ALL",
   OrgDb =org.Hs.eg.db,
   keyType = "SYMBOL",
   exponent = 1,
   minGSSize = 10,
   maxGSSize = 500,
-  eps = 1e-10,
+  eps = 0,
   pvalueCutoff = 0.05,
   pAdjustMethod = "BH",
   verbose = TRUE,
@@ -267,5 +246,85 @@ kegg_cluster2 <- gseKEGG(geneList= cluster2_logfc,
                verbose      = TRUE,
                eps=0)
 
+
+FeaturePlot(object = pbmc.combined, features = c("CD3D","CD3G","CD3E"), cols = c("grey", "red"), reduction = "umap", label=TRUE)
+FeaturePlot(object = pbmc.combined, features = c("CD4"), cols = c("grey", "red"), reduction = "umap", label=TRUE)
+FeaturePlot(object = pbmc.combined, features = c("CD8A","CD8B"), cols = c("grey", "red"), reduction = "umap", label=TRUE)
+FeaturePlot(object = pbmc.combined, features = c("CD8A","CD8B"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="Timepoint")
+FeaturePlot(object = pbmc.combined, features = c("CD8A","CD8B"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="iRAE")
+FeaturePlot(object = pbmc.combined, features = c("CD38"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="Timepoint")
+FeaturePlot(object = pbmc.combined, features = c("CD4"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="iRAE")
+FeaturePlot(object = timepoint_2.subset, features = c("CD38"), reduction = "umap", label=TRUE)
+
+cluster11_compare <- subset(pbmc.combined, idents = "11")
+Idents(cluster11_compare) <- "Timepoint"
+cluster11_compare_avg <- log1p(AverageExpression(cluster11_compare, verbose = FALSE)$RNA)
+cluster11_compare_avg$gene <- rownames(cluster11_compare_avg)
+
+
+
+cluster11_1v2 <-ggplot(cluster11_compare_avg, aes_(as.name(1), as.name(2), 
+                      text = paste("Gene: ", cluster11_compare_avg$gene, "\n",
+                                   sep = ""))) + 
+                                    geom_point() + ggtitle("Cluster 11 Timepoint 1 vs. 2")
+
+ggplot(cluster11_compare_avg, aes_(as.name(2), as.name(3))) + geom_point() + ggtitle("Cluster 11 Timepoint 2 vs. 3")
+ggplot(cluster11_compare_avg, aes_(as.name(3), as.name(4))) + geom_point() + ggtitle("Cluster 11 Timepoint 3 vs. 4")
+
+cluster11_4v5 <-ggplot(cluster11_compare_avg, aes_(as.name(4), as.name(5),
+                                   text = paste("Gene: ", cluster11_compare_avg$gene, "\n",
+                                                sep = ""))) +
+                                    geom_point() + ggtitle("Cluster 11 Timepoint 4 vs. 5")
+
+
+ggplot(cluster11_compare_avg, aes_(as.name(5), as.name(6))) + geom_point() + ggtitle("Cluster 11 Timepoint 5 vs. 6")
+
+print(cluster11_1v2)
+ggplotly(cluster11_1v2, tooltip = "text")
+ggplotly(cluster11_4v5, tooltip = "text")
+
+
+#for loop to subset timepoint avglogfoldchange DEG data
+# for (i in 0:19){
+#   print("cluster ")
+#   print(i)
+#   cluster <- subset(pbmc.combined, idents = i)
+#   Idents(cluster) <- "Timepoint"
+#   
+#   cluster_compare_avg <- log1p(AverageExpression(cluster, verbose = FALSE)$RNA)
+#   cluster_compare_avg$gene <- rownames(cluster_compare_avg)
+#   
+#   
+#   nam <- paste("cluster", i,".avgLOG_timepoint", sep = "")
+#   assign(nam, cluster_compare_avg)
+#   
+#   rm(cluster)
+#   rm(cluster_compare_avg)
+#   
+# }
+
+fileNames = list(cluster0.avgLOG_timepoint,
+                 cluster1.avgLOG_timepoint,
+                 cluster2.avgLOG_timepoint,
+                 cluster3.avgLOG_timepoint,
+                 cluster4.avgLOG_timepoint,
+                 cluster5.avgLOG_timepoint,
+                 cluster6.avgLOG_timepoint,
+                 cluster7.avgLOG_timepoint,
+                 cluster8.avgLOG_timepoint,
+                 cluster9.avgLOG_timepoint,
+                 cluster10.avgLOG_timepoint,
+                 cluster11.avgLOG_timepoint,
+                 cluster12.avgLOG_timepoint,
+                 cluster13.avgLOG_timepoint,
+                 cluster14.avgLOG_timepoint,
+                 cluster15.avgLOG_timepoint,
+                 cluster16.avgLOG_timepoint,
+                 cluster17.avgLOG_timepoint,
+                 cluster18.avgLOG_timepoint,
+                 cluster19.avgLOG_timepoint)
+
+
+save(fileNames,file="Data4Rmd.RData")
 
 

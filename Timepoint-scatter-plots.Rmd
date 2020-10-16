@@ -1,0 +1,116 @@
+---
+title: "Timepoint Scatter Plots"
+author: "Matthew Salaciak"
+date: "10/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(Matrix)
+library(tidyverse)
+library(RCurl)
+library(cowplot)
+library(pheatmap)
+library(clusterProfiler)
+library("org.Dm.eg.db",character.only = TRUE)
+library(DOSE)
+theme_set(theme_cowplot())
+library(plotly)
+
+load(file="Data4Rmd.RData")
+library(htmlwidgets)
+library(htmltools)
+library(ggrastr)
+library(ExPanDaR)
+
+```
+
+
+## Including Plots
+
+Scatter plots comparing clusters but at different time points with hopes to identify 
+obvious outliers that could indicate upregulated/downregulated genes over time.
+
+The outliers are selected based on a difference of average logfold change of 0.9.
+
+If found, they are labeled and colored
+
+```{r pressure, echo=FALSE, warning=FALSE}
+
+
+for (i in 1:3) {
+    
+dummyDF <-fileNames[[i]]
+
+dummyDF <- dummyDF %>%
+  rename(
+    time_1 = 1,
+    time_2 = 2,
+    time_3 = 3,
+    time_4 = 4,
+    time_5 = 5,
+    time_6 = 6,
+    )
+timePointCol <- list(dummyDF$time_1,
+                     dummyDF$time_2,
+                     dummyDF$time_3,
+                     dummyDF$time_4,
+                     dummyDF$time_5,
+                     dummyDF$time_6)
+
+for(j in 1:5) {
+
+  time_x <-timePointCol[[j]]
+  time_y<-timePointCol[[j+1]]
+  
+highlight_df <- dummyDF %>% mutate(Difference = time_y - time_x) %>%
+             filter(abs(Difference) >=0.9)
+
+timePointColHL <- list(highlight_df$time_1,
+                     highlight_df$time_2,
+                     highlight_df$time_3,
+                     highlight_df$time_4,
+                     highlight_df$time_5,
+                     highlight_df$time_6)
+
+
+ time_x_hl <-timePointColHL[[j]]
+  time_y_hl <-timePointColHL[[j+1]]
+
+
+  clusterPlot<-ggplot(dummyDF, aes(time_x, time_y)) +  ggtitle(paste("Cluster,", i ,"Timepoint", j ,"vs.",  j+1)) +
+    geom_point_rast(size=1,alpha=0.7)   +
+    geom_point_rast(highlight_df, mapping = aes(x=time_x_hl,y=time_y_hl, color=gene),size=1)
+
+  print(clusterPlot)
+
+
+
+
+}
+rm(timePointCol)
+rm(dummyDF)
+rm(clusterPlot)
+rm(timePointColHL)
+rm(highlight_df)
+rm(time_x)
+rm(time_y)
+}
+
+
+
+
+```
+
+
+
+
+
+
+
+
