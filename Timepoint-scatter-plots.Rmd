@@ -38,15 +38,19 @@ library(ExPanDaR)
 
 ## Including Plots
 
-Scatter plots comparing clusters but at different time points with hopes to identify 
-obvious outliers that could indicate upregulated/downregulated genes over time.
+Scatter plots comparing clusters but at different time points with hopes to identify obvious outliers.
 
-The outliers are selected based on a difference of average logfold change of 0.9.
+The ouliers are selected by comparing the natural log transformed average gene expression from one time point to the other.
 
-If found, they are labeled and colored
+If the difference between gene expression is greater than 0.9, this is considered an outlier and the gene is labeled and colored.
+
+For example, if one scatter plot is comparing Timepoint 1 vs 2, and the outlier is on the Y-axis (Timepoint 2), it can be interpreted as 
+that specific gene has a higher expression in Timepoint 2 (Y-axis) compared to Timepoint 1 (X-axis).
 
 
 ## UMAP comparing timepoints for reference 
+
+Please note that the cluster ID's are still being further investigated in order to determine specific subsets.
 ``` {r, echo=FALSE, fig.width = 8}
 for (k in 1:6){
 print(plotlists[[k]])
@@ -101,12 +105,12 @@ timePointColHL <- list(highlight_df$time_1,
   time_y_hl <-timePointColHL[[j+1]]
 
 
-  clusterPlot<-ggplot(dummyDF, aes(time_x, time_y)) +  ggtitle(paste(clusterID,", Timepoint", j ,"vs.",  j+1)) +
+  clusterPlot<-ggplot(dummyDF, aes(x = time_x, y=time_y)) +  ggtitle(paste(clusterID,", Timepoint", j ,"vs.",  j+1)) +
     geom_point_rast(size=1,alpha=0.7)   +
     geom_point_rast(highlight_df, mapping = aes(x=time_x_hl,y=time_y_hl, color=gene),size=1.3)
 
   print(clusterPlot + theme(panel.background = element_rect(fill = "white", colour = "grey50"),legend.text=element_text(size=8),
-                            legend.title=element_text(size=10), plot.title = element_text(size =12)))
+                            legend.title=element_text(size=10), plot.title = element_text(size =12))  +labs(x= (paste("Timepoint ",j)), y = (paste("Timepoint ",j +1))))
 
 
 
