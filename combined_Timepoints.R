@@ -142,18 +142,27 @@ pbmc.combined <- FindClusters(pbmc.combined,resolution = 0.8)
 pbmc.combined <- RunUMAP(pbmc.combined, dims = 1:20)
 
 # Visualization
-p1 <- DimPlot(pbmc.combined, reduction = "umap", split.by = "Timepoint", label=TRUE)
-p2 <- DimPlot(pbmc.combined, reduction = "umap", label = TRUE)
-print(p1)
-print(p2)
+umap_timepoint <- DimPlot(pbmc.combined, reduction = "umap", split.by = "Timepoint", label=TRUE)
+oldClusterID <- DimPlot(pbmc.combined, reduction = "umap", label = TRUE)
+print(umap_timepoint)
+print(oldClusterID)
 
 #integrated count = 26739
 Reduce("+",table ( Idents(pbmc.combined) ) )
 
+pbmc.combined[["old.ident"]] <- Idents(object = pbmc.combined)
+
+new.cluster.ids <- c("CD14 Mono 1", "CD14 Mono 2", "CD4 TCM", "CD4 Naive","CD14 Mono 3"," CD8 t-cell 1","CD8 t-cell 2", "CD8 t-cell 3", "CD14 Mono 4"
+                     ,"NK" , "CD16 Mono " ,"B Cell" ,"CD8 TEM","CD14 Mono 5" ,"cpDC","CD14 Mono 6", "CD4 Treg" ,"CD8 Exhausted" ,"CD8 Teff" ,"pDC")
+
+names(new.cluster.ids) <- levels(pbmc.combined)
+pbmc.combined <- RenameIdents(pbmc.combined, new.cluster.ids)
 
 
 DimPlot(pbmc.combined,reduction = "umap", split.by = "iRAE")
 DimPlot(pbmc.combined,reduction = "umap", split.by = "Disease_status")
+
+DimPlot(pbmc.combined,reduction = "umap",label = TRUE)
 
 timepoint_1.subset <- subset(x = pbmc.combined, subset = Timepoint == "1")
 timepoint_2.subset <- subset(x = pbmc.combined, subset = Timepoint == "2")
@@ -163,14 +172,16 @@ timepoint_5.subset <- subset(x = pbmc.combined, subset = Timepoint == "5")
 timepoint_6.subset <- subset(x = pbmc.combined, subset = Timepoint == "6")
 
 
-DimPlot(timepoint_1.subset,reduction = "umap") +ggtitle("Timepoint 1")
-DimPlot(timepoint_2.subset,reduction = "umap") +ggtitle("Timepoint 2")
-DimPlot(timepoint_3.subset,reduction = "umap") +ggtitle("Timepoint 3")
-DimPlot(timepoint_4.subset,reduction = "umap") +ggtitle("Timepoint 4")
-DimPlot(timepoint_5.subset,reduction = "umap") +ggtitle("Timepoint 5")
-DimPlot(timepoint_6.subset,reduction = "umap") +ggtitle("Timepoint 6")
+t1 <- DimPlot(timepoint_1.subset,reduction = "umap", label = TRUE ,repel = TRUE, label.size = 3.2) +ggtitle("Timepoint 1") + NoLegend()
+t2 <-DimPlot(timepoint_2.subset,reduction = "umap" , label = TRUE, repel = TRUE, label.size = 3.2) +ggtitle("Timepoint 2") +  NoLegend()
+t3 <- DimPlot(timepoint_3.subset,reduction = "umap" , label = TRUE, repel = TRUE, label.size = 3.2) +ggtitle("Timepoint 3") +  NoLegend()
+t4 <- DimPlot(timepoint_4.subset,reduction = "umap" , label = TRUE, repel = TRUE, label.size = 3.2) +ggtitle("Timepoint 4") +  NoLegend()
+t5 <- DimPlot(timepoint_5.subset,reduction = "umap" , label = TRUE, repel = TRUE, label.size = 3.2) +ggtitle("Timepoint 5") +  NoLegend()
+t6 <-DimPlot(timepoint_6.subset,reduction = "umap" , label = TRUE,  repel = TRUE, label.size = 3.2) +ggtitle("Timepoint 6") +  NoLegend()
 
 
+
+plotlists <-list(t1,t2,t3,t4,t5,t6)
 
 
 #switch back pbmc.combined assay to RNA from integrated for find markers but switch back to integration for visual
@@ -200,7 +211,8 @@ pbmc_full.markers <-rbind(cluster0.markers, cluster1.markers, cluster2.markers,c
                           ,cluster12.markers,cluster13.markers,cluster14.markers,cluster15.markers,cluster16.markers,cluster17.markers
                           ,cluster18.markers,cluster19.markers)
 
-
+#how many cells per timepoint / cluster
+table(Idents(pbmc.combined),pbmc.combined$Timepoint)
 
 
 
@@ -252,7 +264,7 @@ FeaturePlot(object = pbmc.combined, features = c("CD4"), cols = c("grey", "red")
 FeaturePlot(object = pbmc.combined, features = c("CD8A","CD8B"), cols = c("grey", "red"), reduction = "umap", label=TRUE)
 FeaturePlot(object = pbmc.combined, features = c("CD8A","CD8B"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="Timepoint")
 FeaturePlot(object = pbmc.combined, features = c("CD8A","CD8B"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="iRAE")
-FeaturePlot(object = pbmc.combined, features = c("CD38"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="Timepoint")
+FeaturePlot(object = pbmc.combined, features = c("PDCD1"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="Timepoint")
 FeaturePlot(object = pbmc.combined, features = c("CD4"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="iRAE")
 FeaturePlot(object = timepoint_2.subset, features = c("CD38"), reduction = "umap", label=TRUE)
 
@@ -325,6 +337,8 @@ fileNames = list(cluster0.avgLOG_timepoint,
                  cluster19.avgLOG_timepoint)
 
 
-save(fileNames,file="Data4Rmd.RData")
+save(plotlists,file="plotlists.RData")
+
+top20_cluster18 <- cluster18.markers %>% group_by(cluster) %>% top_n(n = 20, wt = avg_logFC)
 
 

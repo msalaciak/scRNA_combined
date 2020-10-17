@@ -5,6 +5,9 @@ date: "10/15/2020"
 output: html_document
 ---
 
+
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
@@ -19,14 +22,16 @@ library(pheatmap)
 library(clusterProfiler)
 library("org.Dm.eg.db",character.only = TRUE)
 library(DOSE)
-theme_set(theme_cowplot())
+
 library(plotly)
 
 load(file="Data4Rmd.RData")
+load(file="plotlists.RData")
 library(htmlwidgets)
 library(htmltools)
 library(ggrastr)
 library(ExPanDaR)
+
 
 ```
 
@@ -40,12 +45,25 @@ The outliers are selected based on a difference of average logfold change of 0.9
 
 If found, they are labeled and colored
 
-```{r pressure, echo=FALSE, warning=FALSE}
+
+## UMAP comparing timepoints for reference 
+``` {r, echo=FALSE, fig.width = 8}
+for (k in 1:6){
+print(plotlists[[k]])
+}
+```
 
 
-for (i in 1:3) {
-    
+``` {r pressure, echo=FALSE, warning=FALSE}
+
+Cluster.names <- list("CD14 Mono 1", "CD14 Mono 2", "CD4 TCM", "CD4 Naive","CD14 Mono 3"," CD8 t-cell 1","CD8 t-cell 2", "CD8 t-cell 3", "CD14 Mono 4"
+		,"NK" , "CD16 Mono " ,"B Cell" ,"CD8 TEM","CD14 Mono 5" ,"cpDC","CD14 Mono 6", "CD4 Treg" ,"CD8 Exhausted" ,"CD8 Teff" ,"pDC")
+
+
+for (i in 1:20) {
+
 dummyDF <-fileNames[[i]]
+clusterID <-Cluster.names[[i]]
 
 dummyDF <- dummyDF %>%
   rename(
@@ -83,11 +101,12 @@ timePointColHL <- list(highlight_df$time_1,
   time_y_hl <-timePointColHL[[j+1]]
 
 
-  clusterPlot<-ggplot(dummyDF, aes(time_x, time_y)) +  ggtitle(paste("Cluster,", i ,"Timepoint", j ,"vs.",  j+1)) +
+  clusterPlot<-ggplot(dummyDF, aes(time_x, time_y)) +  ggtitle(paste(clusterID,", Timepoint", j ,"vs.",  j+1)) +
     geom_point_rast(size=1,alpha=0.7)   +
-    geom_point_rast(highlight_df, mapping = aes(x=time_x_hl,y=time_y_hl, color=gene),size=1)
+    geom_point_rast(highlight_df, mapping = aes(x=time_x_hl,y=time_y_hl, color=gene),size=1.3)
 
-  print(clusterPlot)
+  print(clusterPlot + theme(panel.background = element_rect(fill = "white", colour = "grey50"),legend.text=element_text(size=8),
+                            legend.title=element_text(size=10), plot.title = element_text(size =12)))
 
 
 
@@ -102,6 +121,8 @@ rm(time_x)
 rm(time_y)
 }
 
+rm(Cluster.names)
+rm(clusterID)
 
 
 
