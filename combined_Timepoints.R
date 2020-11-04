@@ -1,17 +1,4 @@
-library(dplyr)
-library(Seurat)
-library(patchwork)
-library(ggplot2)
-library(Matrix)
-library(tidyverse)
-library(RCurl)
-library(cowplot)
-library(pheatmap)
-library(clusterProfiler)
-library("org.Dm.eg.db",character.only = TRUE)
-library(DOSE)
-library(plotly)
-theme_set(theme_cowplot())
+
 
 #load datasets of each time point
 timepoint_1.data <- Read10X(data.dir ="/home/matthew/datatransfer/mercier/151231/outs/filtered_gene_bc_matrices/GRCh38")
@@ -212,7 +199,15 @@ pbmc_full.markers <-rbind(cluster0.markers, cluster1.markers, cluster2.markers,c
                           ,cluster18.markers,cluster19.markers)
 
 #how many cells per timepoint / cluster
-table(Idents(pbmc.combined),pbmc.combined$Timepoint)
+cell.ident.pro<-table(Idents(pbmc.combined),pbmc.combined$Timepoint)
+
+cell.ident.pro<-as.data.frame.matrix(cell.ident.pro)
+cell.ident.pro <- cbind(cell.ident.pro = rownames(cell.ident.pro), cell.ident.pro)
+rownames(cell.ident.pro) <- 1:nrow(cell.ident.pro)
+
+cell.ident.pro <- cell.ident.pro %>%
+  rename(
+    Identity = cell.ident.pro)
 
 
 
@@ -232,8 +227,9 @@ gse_cluster16 <- gseGO(
   ont = "ALL",
   OrgDb =org.Hs.eg.db,
   keyType = "SYMBOL",
+  nPerm  = 1000,
   exponent = 1,
-  minGSSize = 10,
+  minGSSize = 100,
   maxGSSize = 500,
   eps = 0,
   pvalueCutoff = 0.05,
@@ -341,4 +337,6 @@ save(plotlists,file="plotlists.RData")
 
 top20_cluster18 <- cluster18.markers %>% group_by(cluster) %>% top_n(n = 20, wt = avg_logFC)
 
-
+#sum rows for cell ident
+cell.ident.pro %>%
+  +     summarize_if(is.numeric, sum, na.rm=TRUE)
