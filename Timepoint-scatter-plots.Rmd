@@ -1,7 +1,7 @@
 ---
 title: "Timepoint Scatter Plots"
 author: "Matthew Salaciak"
-date: "10/15/2020"
+date: "11/08/2020"
 output: html_document
 ---
 
@@ -22,7 +22,7 @@ library(pheatmap)
 library(clusterProfiler)
 library("org.Dm.eg.db",character.only = TRUE)
 library(DOSE)
-
+library(ggpubr)
 library(plotly)
 
 load(file="Data4Rmd.RData")
@@ -59,6 +59,91 @@ print(plotlists[[k]])
 
 
 ``` {r pressure, echo=FALSE, warning=FALSE}
+# 
+# Cluster.names <- list("CD14 Mono 1", "CD14 Mono 2", "CD4 TCM", "CD4 Naive","CD14 Mono 3"," CD8 t-cell 1","CD8 t-cell 2", "CD8 t-cell 3", "CD14 Mono 4"
+# 		,"NK" , "CD16 Mono " ,"B Cell" ,"CD8 TEM","CD14 Mono 5" ,"cpDC","CD14 Mono 6", "CD4 Treg" ,"CD8 Exhausted" ,"CD8 Teff" ,"pDC")
+# 
+# 
+# for (i in 1:20) {
+# 
+# dummyDF <-fileNames[[i]]
+# clusterID <-Cluster.names[[i]]
+#    
+# dummyDF <- dummyDF %>%
+#   rename(
+#     time_1 = 1,
+#     time_2 = 2,
+#     time_3 = 3,
+#     time_4 = 4,
+#     time_5 = 5,
+#     time_6 = 6,
+#     )
+# timePointCol <- list(dummyDF$time_1,
+#                      dummyDF$time_2,
+#                      dummyDF$time_3,
+#                      dummyDF$time_4,
+#                      dummyDF$time_5,
+#                      dummyDF$time_6)
+# 
+# for(j in 1:1) {
+# 
+#   time_x <-timePointCol[[j]]
+#   time_y<-timePointCol[[j+3]]
+#   
+# highlight_df <- dummyDF %>% mutate(Difference = time_y - time_x) %>%
+#              filter(abs(Difference) >=0.9)
+# 
+# timePointColHL <- list(highlight_df$time_1,
+#                      highlight_df$time_2,
+#                      highlight_df$time_3,
+#                      highlight_df$time_4,
+#                      highlight_df$time_5,
+#                      highlight_df$time_6)
+# 
+# # print(highlight_df$gene)
+#  time_x_hl <-timePointColHL[[j]]
+#   time_y_hl <-timePointColHL[[j+3]]
+# 
+# 
+#   clusterPlot<-ggplot(dummyDF, aes(x = time_x, y=time_y)) +  ggtitle(paste(clusterID,", Timepoint", j ,"vs.",  j+3)) +
+#     geom_point_rast(size=1,alpha=0.7)   +
+#     geom_point_rast(highlight_df, mapping = aes(x=time_x_hl,y=time_y_hl, color=gene),size=1.3)  + 
+#     theme(panel.background = element_rect(fill = "white", colour = "grey50"),legend.text=element_text(size=8),
+#                             legend.title=element_text(size=10), plot.title = element_text(size =12))  +
+#                             labs(x= (paste("Timepoint ",j)), y = (paste("Timepoint ",j +3)))
+#     if(length(highlight_df$gene) >=80) {
+#   
+#       print(clusterPlot + theme(legend.position = "none"))
+#       print(highlight_df$gene)
+#     
+#     } else {  
+#             print(clusterPlot)
+#       }
+# 
+#   
+# 
+# }
+# rm(timePointCol)
+# rm(dummyDF)
+# rm(clusterPlot)
+# rm(timePointColHL)
+# rm(highlight_df)
+# rm(time_x)
+# rm(time_y)
+# }
+# 
+# rm(Cluster.names)
+# rm(clusterID)
+# 
+
+
+```
+
+
+## Timepoints 2v3 iRAE in remission 
+
+
+``` {r 2v3, echo=FALSE, warning=FALSE}
 
 Cluster.names <- list("CD14 Mono 1", "CD14 Mono 2", "CD4 TCM", "CD4 Naive","CD14 Mono 3"," CD8 t-cell 1","CD8 t-cell 2", "CD8 t-cell 3", "CD14 Mono 4"
 		,"NK" , "CD16 Mono " ,"B Cell" ,"CD8 TEM","CD14 Mono 5" ,"cpDC","CD14 Mono 6", "CD4 Treg" ,"CD8 Exhausted" ,"CD8 Teff" ,"pDC")
@@ -68,7 +153,7 @@ for (i in 1:20) {
 
 dummyDF <-fileNames[[i]]
 clusterID <-Cluster.names[[i]]
-
+   
 dummyDF <- dummyDF %>%
   rename(
     time_1 = 1,
@@ -85,7 +170,7 @@ timePointCol <- list(dummyDF$time_1,
                      dummyDF$time_5,
                      dummyDF$time_6)
 
-for(j in 1:5) {
+for(j in 2:2) {
 
   time_x <-timePointCol[[j]]
   time_y<-timePointCol[[j+1]]
@@ -100,20 +185,197 @@ timePointColHL <- list(highlight_df$time_1,
                      highlight_df$time_5,
                      highlight_df$time_6)
 
-
+# print(highlight_df$gene)
  time_x_hl <-timePointColHL[[j]]
   time_y_hl <-timePointColHL[[j+1]]
 
 
   clusterPlot<-ggplot(dummyDF, aes(x = time_x, y=time_y)) +  ggtitle(paste(clusterID,", Timepoint", j ,"vs.",  j+1)) +
     geom_point_rast(size=1,alpha=0.7)   +
-    geom_point_rast(highlight_df, mapping = aes(x=time_x_hl,y=time_y_hl, color=gene),size=1.3)
+    geom_point_rast(highlight_df, mapping = aes(x=time_x_hl,y=time_y_hl, color=gene),size=1.3)  + 
+    theme(panel.background = element_rect(fill = "white", colour = "grey50"),legend.text=element_text(size=8),
+                            legend.title=element_text(size=10), plot.title = element_text(size =12))  +
+                            labs(x= (paste("Timepoint ",j)), y = (paste("Timepoint ",j +1)))
+    if(length(highlight_df$gene) >=80) {
+  
+      print(clusterPlot + theme(legend.position = "none"))
+      print(highlight_df$gene)
+    
+    } else {  
+            print(clusterPlot)
+      }
 
-  print(clusterPlot + theme(panel.background = element_rect(fill = "white", colour = "grey50"),legend.text=element_text(size=8),
-                            legend.title=element_text(size=10), plot.title = element_text(size =12))  +labs(x= (paste("Timepoint ",j)), y = (paste("Timepoint ",j +1))))
+  
+
+}
+rm(timePointCol)
+rm(dummyDF)
+rm(clusterPlot)
+rm(timePointColHL)
+rm(highlight_df)
+rm(time_x)
+rm(time_y)
+}
+
+rm(Cluster.names)
+rm(clusterID)
 
 
 
+```
+
+
+## Timepoints 5v6 iRAE in presence of disease
+
+
+``` {r 5v6, echo=FALSE, warning=FALSE}
+
+Cluster.names <- list("CD14 Mono 1", "CD14 Mono 2", "CD4 TCM", "CD4 Naive","CD14 Mono 3"," CD8 t-cell 1","CD8 t-cell 2", "CD8 t-cell 3", "CD14 Mono 4"
+		,"NK" , "CD16 Mono " ,"B Cell" ,"CD8 TEM","CD14 Mono 5" ,"cpDC","CD14 Mono 6", "CD4 Treg" ,"CD8 Exhausted" ,"CD8 Teff" ,"pDC")
+
+
+for (i in 1:20) {
+
+dummyDF <-fileNames[[i]]
+clusterID <-Cluster.names[[i]]
+   
+dummyDF <- dummyDF %>%
+  rename(
+    time_1 = 1,
+    time_2 = 2,
+    time_3 = 3,
+    time_4 = 4,
+    time_5 = 5,
+    time_6 = 6,
+    )
+timePointCol <- list(dummyDF$time_1,
+                     dummyDF$time_2,
+                     dummyDF$time_3,
+                     dummyDF$time_4,
+                     dummyDF$time_5,
+                     dummyDF$time_6)
+
+for(j in 5:5) {
+
+  time_x <-timePointCol[[j]]
+  time_y<-timePointCol[[j+1]]
+  
+highlight_df <- dummyDF %>% mutate(Difference = time_y - time_x) %>%
+             filter(abs(Difference) >=0.9)
+
+timePointColHL <- list(highlight_df$time_1,
+                     highlight_df$time_2,
+                     highlight_df$time_3,
+                     highlight_df$time_4,
+                     highlight_df$time_5,
+                     highlight_df$time_6)
+
+# print(highlight_df$gene)
+ time_x_hl <-timePointColHL[[j]]
+  time_y_hl <-timePointColHL[[j+1]]
+
+
+  clusterPlot<-ggplot(dummyDF, aes(x = time_x, y=time_y)) +  ggtitle(paste(clusterID,", Timepoint", j ,"vs.",  j+1)) +
+    geom_point_rast(size=1,alpha=0.7)   +
+    geom_point_rast(highlight_df, mapping = aes(x=time_x_hl,y=time_y_hl, color=gene),size=1.3)  + 
+    theme(panel.background = element_rect(fill = "white", colour = "grey50"),legend.text=element_text(size=8),
+                            legend.title=element_text(size=10), plot.title = element_text(size =12))  +
+                            labs(x= (paste("Timepoint ",j)), y = (paste("Timepoint ",j +1)))
+    if(length(highlight_df$gene) >=80) {
+  
+      print(clusterPlot + theme(legend.position = "none"))
+      print(highlight_df$gene)
+    
+    } else {  
+            print(clusterPlot)
+      }
+
+  
+
+}
+rm(timePointCol)
+rm(dummyDF)
+rm(clusterPlot)
+rm(timePointColHL)
+rm(highlight_df)
+rm(time_x)
+rm(time_y)
+}
+
+rm(Cluster.names)
+rm(clusterID)
+
+
+
+```
+
+
+## Timepoints 1v4  pembro-naive relapse and pembro-treated relapse 
+
+
+``` {r 1v4, echo=FALSE, warning=FALSE}
+
+Cluster.names <- list("CD14 Mono 1", "CD14 Mono 2", "CD4 TCM", "CD4 Naive","CD14 Mono 3"," CD8 t-cell 1","CD8 t-cell 2", "CD8 t-cell 3", "CD14 Mono 4"
+		,"NK" , "CD16 Mono " ,"B Cell" ,"CD8 TEM","CD14 Mono 5" ,"cpDC","CD14 Mono 6", "CD4 Treg" ,"CD8 Exhausted" ,"CD8 Teff" ,"pDC")
+
+
+for (i in 1:20) {
+
+dummyDF <-fileNames[[i]]
+clusterID <-Cluster.names[[i]]
+   
+dummyDF <- dummyDF %>%
+  rename(
+    time_1 = 1,
+    time_2 = 2,
+    time_3 = 3,
+    time_4 = 4,
+    time_5 = 5,
+    time_6 = 6,
+    )
+timePointCol <- list(dummyDF$time_1,
+                     dummyDF$time_2,
+                     dummyDF$time_3,
+                     dummyDF$time_4,
+                     dummyDF$time_5,
+                     dummyDF$time_6)
+
+for(j in 1:1) {
+
+  time_x <-timePointCol[[j]]
+  time_y<-timePointCol[[j+3]]
+  
+highlight_df <- dummyDF %>% mutate(Difference = time_y - time_x) %>%
+             filter(abs(Difference) >=0.9)
+
+timePointColHL <- list(highlight_df$time_1,
+                     highlight_df$time_2,
+                     highlight_df$time_3,
+                     highlight_df$time_4,
+                     highlight_df$time_5,
+                     highlight_df$time_6)
+
+# print(highlight_df$gene)
+ time_x_hl <-timePointColHL[[j]]
+  time_y_hl <-timePointColHL[[j+3]]
+
+
+  clusterPlot<-ggplot(dummyDF, aes(x = time_x, y=time_y)) +  ggtitle(paste(clusterID,", Timepoint", j ,"vs.",  j+3)) +
+    geom_point_rast(size=1,alpha=0.7)   +
+    geom_point_rast(highlight_df, mapping = aes(x=time_x_hl,y=time_y_hl, color=gene),size=1.3)  + 
+    theme(panel.background = element_rect(fill = "white", colour = "grey50"),legend.text=element_text(size=8),
+                            legend.title=element_text(size=10), plot.title = element_text(size =12))  +
+                            labs(x= (paste("Timepoint ",j)), y = (paste("Timepoint ",j +3)))
+    if(length(highlight_df$gene) >=80) {
+  
+      print(clusterPlot + theme(legend.position = "none"))
+      print(highlight_df$gene)
+    
+    } else {  
+            print(clusterPlot)
+      }
+
+  
 
 }
 rm(timePointCol)
@@ -134,8 +396,84 @@ rm(clusterID)
 
 
 
+## timepoint 2v5 iRAE timepoints
+``` {r 2v5, echo=FALSE, warning=FALSE}
+
+Cluster.names <- list("CD14 Mono 1", "CD14 Mono 2", "CD4 TCM", "CD4 Naive","CD14 Mono 3"," CD8 t-cell 1","CD8 t-cell 2", "CD8 t-cell 3", "CD14 Mono 4"
+		,"NK" , "CD16 Mono " ,"B Cell" ,"CD8 TEM","CD14 Mono 5" ,"cpDC","CD14 Mono 6", "CD4 Treg" ,"CD8 Exhausted" ,"CD8 Teff" ,"pDC")
+
+
+for (i in 1:20) {
+
+dummyDF <-fileNames[[i]]
+clusterID <-Cluster.names[[i]]
+   
+dummyDF <- dummyDF %>%
+  rename(
+    time_1 = 1,
+    time_2 = 2,
+    time_3 = 3,
+    time_4 = 4,
+    time_5 = 5,
+    time_6 = 6,
+    )
+timePointCol <- list(dummyDF$time_1,
+                     dummyDF$time_2,
+                     dummyDF$time_3,
+                     dummyDF$time_4,
+                     dummyDF$time_5,
+                     dummyDF$time_6)
+
+for(j in 2:2) {
+
+  time_x <-timePointCol[[j]]
+  time_y<-timePointCol[[j+3]]
+  
+highlight_df <- dummyDF %>% mutate(Difference = time_y - time_x) %>%
+             filter(abs(Difference) >=0.9)
+
+timePointColHL <- list(highlight_df$time_1,
+                     highlight_df$time_2,
+                     highlight_df$time_3,
+                     highlight_df$time_4,
+                     highlight_df$time_5,
+                     highlight_df$time_6)
+
+# print(highlight_df$gene)
+ time_x_hl <-timePointColHL[[j]]
+  time_y_hl <-timePointColHL[[j+3]]
+
+
+  clusterPlot<-ggplot(dummyDF, aes(x = time_x, y=time_y)) +  ggtitle(paste(clusterID,", Timepoint", j ,"vs.",  j+3)) +
+    geom_point_rast(size=1,alpha=0.7)   +
+    geom_point_rast(highlight_df, mapping = aes(x=time_x_hl,y=time_y_hl, color=gene),size=1.3)  + 
+    theme(panel.background = element_rect(fill = "white", colour = "grey50"),legend.text=element_text(size=8),
+                            legend.title=element_text(size=10), plot.title = element_text(size =12))  +
+                            labs(x= (paste("Timepoint ",j)), y = (paste("Timepoint ",j +3)))
+    if(length(highlight_df$gene) >=80) {
+  
+      print(clusterPlot + theme(legend.position = "none"))
+      print(highlight_df$gene)
+    
+    } else {  
+            print(clusterPlot)
+      }
+
+  
+
+}
+rm(timePointCol)
+rm(dummyDF)
+rm(clusterPlot)
+rm(timePointColHL)
+rm(highlight_df)
+rm(time_x)
+rm(time_y)
+}
+
+rm(Cluster.names)
+rm(clusterID)
 
 
 
-
-
+```
