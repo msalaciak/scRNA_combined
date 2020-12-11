@@ -3,14 +3,15 @@ library(Seurat)
 library(patchwork)	
 library(ggplot2)	
 library(Matrix)	
-library(tidyverse)	
+library(tidyverse)
+library(plyr)
 library(RCurl)	
-library(cowplot)	
-library(pheatmap)	
-library(clusterProfiler)	
-library("org.Dm.eg.db",character.only = TRUE)	
+library(cowplot)
+library(pheatmap)
+library(clusterProfiler)
+library("org.Dm.eg.db",character.only = TRUE)
 library(org.Dm.eg.db)
-library(DOSE)	
+library(DOSE)
 library(plotly)
 theme_set(theme_cowplot())
 library(enrichplot)
@@ -23,6 +24,9 @@ library(scRepertoire)
 cell_proportion <- read.csv(file = 'pbmc_combined_percent_r.csv')
 cell_proportion <-cell_proportion[ , -c(1)]
 cell_proportion <-cell_proportion[ -c(21), ]
+
+cell_proportion_per <- read.csv(file = 'pbmc_combined_percent_format.csv')
+
 
 #load datasets of each time point
 timepoint_1.data <- Read10X(data.dir ="/home/matthew/datatransfer/mercier/151231/outs/filtered_gene_bc_matrices/GRCh38")
@@ -542,7 +546,9 @@ cluster17_test_plot <-melt(cluster17_test_plot, id.vars=c("gene"))
 cluster17_test_plot$timepoint <- as.numeric(as.character(cluster17_test_plot$variable))
 
 ggplot(cluster17_test_plot, aes(x = timepoint, y = value, color = gene, group = gene)) + 
-  geom_point()+geom_line() +facet_wrap(vars(gene),scales = "free_y") +theme(legend.position="none") + ggtitle("CD8 Exhausted ")
+  geom_point()+geom_line() +facet_wrap(vars(gene),scales = "free_y") +theme(legend.position="none") + ggtitle("CD8 Exhausted Across 6 Time ")
+
+
 
 
 ggplot(data = cluster17_test_plot, mapping = aes(x = timepoint,
@@ -550,6 +556,9 @@ ggplot(data = cluster17_test_plot, mapping = aes(x = timepoint,
                                                        fill = value)) +
   geom_tile() +
   xlab(label = "Timepoints") + theme_gray()   + scale_fill_distiller(palette = "Spectral")
+
+
+
 
 ##cluster 18 t-eff
 
@@ -596,14 +605,29 @@ cluster11_test_plot <- cluster11.avgLOG_timepoint[c("IGKV4-1"  , "IGLV4-69" , "I
                                                     "TXNIP"  ,  "IGKV3-20" ,"FOS"   ,   "PPP1R15A" ,"IGHV3-53" ,"IGLV3-21", "IGKV1-27",
                                                     "JUN"    ,  "GNLY"   ,  "IGKV3-11", "DUSP2"   , "CD69"  ,   "NFKBIA"  , "FOS"   ,   "IER2"  ,   "IGLV2-23" ,"IGHV1-24" ,"IGLV5-45" ,"IGKV1-27"
 ),]
+
+cluster11.subset.markers<-subset(cluster11.markers, gene %in% c("IGKV4-1"  , "IGLV4-69" , "IGLV5-52" , "IGLV2-23" , "IGKV1-5"  , "IGKV3D-15" ,"IGHV3-7"  , "IGHV1-18",  "IGHV3-21" , "IGHV1-24"  ,"IGHV3-30" ,
+                            "IGHV3-33" , "IGLV1-51" , "IGLV1-47" , "IGLV1-44" , "IGLV3-21",  "IGLV2-11" ,
+                            "TSC22D3" , "FOS"    ,  "IGHV4-39", "IGLV2-8" , "IGHV1-18" ,"IGKV1-27",
+                            "JUN"     , "IGKV4-1"  ,"IGKV3-20", "CD83"    , "FOS"     , "IGHV4-39" ,"IL32"   ,  "JUNB"   ,  "IER2"  ,   "IGLV2-8" , "IGHV1-18", "IGLV1-51",
+                            "IGKV1-27",
+                            "TXNIP"  ,  "IGKV3-20" ,"FOS"   ,   "PPP1R15A" ,"IGHV3-53" ,"IGLV3-21", "IGKV1-27",
+                            "JUN"    ,  "GNLY"   ,  "IGKV3-11", "DUSP2"   , "CD69"  ,   "NFKBIA"  , "FOS"   ,   "IER2"  ,   "IGLV2-23" ,"IGHV1-24" ,"IGLV5-45" ,"IGKV1-27"))
+
+cluster11.subset.markers %>% filter(pct.1 > .1)
+
+cluster11_test_plot <- cluster11.avgLOG_timepoint[c("CD83","CD69","JUN","TSC22D3","DUSP2","FOS"),]
+
+
 cluster11_test_plot<-cluster11_test_plot[!duplicated(cluster11_test_plot), ]
 
 cluster11_test_plot <-melt(cluster11_test_plot, id.vars=c("gene"))
 cluster11_test_plot$timepoint <- as.numeric(as.character(cluster11_test_plot$variable))
 
-ggplot(cluster11_test_plot, aes(x = timepoint, y = value, color = gene, group = gene)) + 
-  geom_point()+geom_line() +facet_wrap(vars(gene),scales = "free_y") +theme(legend.position="none") + ggtitle("B Cell ")
+cluster11_test_plot <- ggplot(cluster11_test_plot, aes(x = timepoint, y = value, color = gene, group = gene)) + 
+  geom_point()+geom_line() +facet_wrap(vars(gene),scales = "free_y") +theme(legend.position="none",plot.title = element_text(face = "plain"),) + ggtitle("B Cell Across 6 Timepoints")
 
+ggsave("cluster11_test_plot.png",width = 16 ,height = 5,dpi = 300)
 
 # NK plots
 
@@ -626,11 +650,15 @@ ggplot(cluster9_test_plot, aes(x = timepoint, y = value, color = gene, group = g
 cluster17_ex_mark_plot <- cluster17.avgLOG_timepoint[c("PDCD1","EOMES","LAG3","HAVCR2","IFNG","CD244"),]
 cluster17_ex_mark_plot<-cluster17_ex_mark_plot[!duplicated(cluster17_ex_mark_plot), ]
 
+cluster17_ex_mark_plot[,7] <- c("PDCD1","EOMES","LAG3","HAVCR2 (TIM3)","IFNG","CD244 (2B4)")
+
 cluster17_ex_mark_plot <-melt(cluster17_ex_mark_plot, id.vars=c("gene"))
 cluster17_ex_mark_plot$timepoint <- as.numeric(as.character(cluster17_ex_mark_plot$variable))
 
-ggplot(cluster17_ex_mark_plot, aes(x = timepoint, y = value, color = gene, group = gene)) + 
-  geom_point()+geom_line() +facet_wrap(vars(gene),scales = "free_y") +theme(legend.position="none") + ggtitle("CD8 Exhausted ")
+cd8explot <- ggplot(cluster17_ex_mark_plot, aes(x = timepoint, y = value, color = gene, group = gene)) + 
+  geom_point()+geom_line()  +facet_wrap(vars(gene),scales = "free_y") +theme(legend.position="none",plot.title = element_text(face = "plain")) + ggtitle("CD8 Exhaustion Markers")
+
+ggsave("cd8explot.png",width = 16 ,height = 5,dpi = 300)
 
 #cd8 teff markers
 
@@ -648,13 +676,14 @@ ggplot(cluster18_ex_mark_plot, aes(x = timepoint, y = value, color = gene, group
 cell_proportion<-melt(cell.ident.pro, id.vars=c("Identity"))
 
 
-ggplot(cell_proportion,aes(x=value, y=Identity)) + 
+prop.ex <- ggplot(cell_proportion,aes(x=value, y=Identity)) + 
   geom_bar(aes(fill = as.double(variable)),colour="black", stat="identity" , position = "fill") +
-  scale_fill_continuous(type = "viridis", name = "Time points") + theme_gray() +   labs(y='Cell Identity', x='% of Cluster Relative to Sample')
+  scale_fill_continuous(type = "viridis", name = "Time points") +   labs(y='Cell Identity', x='% of Cluster Relative to Sample')
 
 
 
 
+ggsave("prop.ex.png",width = 8, height = 5,dpi = 300)
 
 
 # geneNames <-data.frame(geneNames)
@@ -817,6 +846,8 @@ nk_2v5<- nk_2v5[, c(2,3,4,5,6,1)]
  tcellex_5v6_top10<- head(arrange(tcellex_5v6, desc(avg_logFC)), n = 20L)
  tcellex_5v6_bottom10<- head(arrange(tcellex_5v6, avg_logFC), n = 20L)
  
- 
- 
+ # tox 
+ View(filter(cluster12.avgLOG_timepoint, gene %in% c("TCF7","TIGIT","TOX","PDCD1","LAG3","HAVCR2","CD244","EOMES","IFNG","KLRG1")))
+ View(filter(cluster17.avgLOG_timepoint, gene %in% c("TCF7","TIGIT","TOX","PDCD1","LAG3","HAVCR2","CD244","EOMES","IFNG","KLRG1")))
+ View(filter(cluster18.avgLOG_timepoint, gene %in% c("TCF7","TIGIT","TOX","PDCD1","LAG3","HAVCR2","CD244","EOMES","IFNG","KLRG1")))
  

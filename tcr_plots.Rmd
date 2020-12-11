@@ -1,0 +1,51 @@
+---
+title: "tcr_plots"
+author: "Matthew Salaciak"
+date: "12/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r pressure, echo=FALSE}
+
+tct.list <- c(tp1_tcr,tp2_tcr,tp3_tcr,tp4_tcr,tp5_tcr,tp6_tcr)
+cell.list <- c("CD8 Exhausted","CD8 Teff","CD8 TEM"," CD8 t-cell 1","CD8 t-cell 2","CD8 t-cell 3","CD4 TCM","CD4 Naive", "CD4 Treg")
+
+
+
+
+  for(k in 1:9) {
+for (i in 1:6) {
+  for (j in 1:6) {
+      if(i<=j) {
+        CloneTrack(tct.list[[i]],tct.list[[j]],cell.list[[k]], TRUE,TRUE,paste("Timepoint ", i, "vs", j,cell.list[[k]])) 
+      }
+    
+  }
+}
+  }
+
+
+
+
+
+```
+
+
+``` {r test}
+
+View(FindTimePoint2.5(cluster17.avgLOG_timepoint,cluster17.markers))
+
+
+
+```
+
+
+
+
+
+

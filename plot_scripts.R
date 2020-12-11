@@ -7,10 +7,10 @@ ggsave("pub.png",width = 5, height = 5,dpi = 300)
 
 
 combo<-(t1+t2)
-ggsave("combo.png",width = 8, height = 5,dpi = 300)
+ggsave("combo.png",width = 9, height = 5,dpi = 300)
 
 
-
+cell_proportion_per <- read.csv(file = 'pbmc_combined_percent_format2.csv')
 
 table1<- gt(data = cell_proportion_per) %>% tab_header(
   title = "Amount of Cells Per Timepoint"
@@ -60,16 +60,44 @@ table1<- gt(data = cell_proportion_per) %>% tab_header(
     label = "2",
     columns = vars(N.Cells.1, X..Cells.1)
     
-  )  
+  )  %>%
+  tab_row_group(
+    group = "PBMC with T Cell Subsets",
+    rows = 3:15) %>%
+  tab_row_group(
+    group = "T Cell Summary",
+    rows = 1:2)%>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#ACEACE"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(
+      
+      rows = c(1,2,10,13))
+  )%>%
+  tab_style(
+    style = list(
+      
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(
+      
+      rows = 16)
+  )
+    
 
 
 table1 %>% gt_theme_538()
 
 table1 %>% gt_theme_538() %>%
   gtsave(
-    "tab_1.png", expand = 5
+    "tab_1.png",expand=10,vwidth = 1628,
+    vheight = 882
     
   )
+
+
 
 
 
@@ -112,3 +140,21 @@ gt_theme_538 <- function(data,...) {
     ) 
 }
 
+
+
+tcrtime <- read.csv(file = 'tptcr.csv')
+
+tcrtime <- melt(tcrtime, id.vars=c("Timepoint..clonotype"))
+
+tcrtime[,2] <-gsub("[A-z].","",tcrtime[,2])
+
+
+
+
+
+ggplot(tcrtime, aes(x = variable, y = value, color = Timepoint..clonotype, group = Timepoint..clonotype)) + 
+  geom_point()+geom_line() +facet_wrap(vars(Timepoint..clonotype),scales = "free_y") +theme(legend.position="none",plot.title = element_text(face = "plain")) + ggtitle("Frequency of T Cell Clones Across 6 Timepoints") +
+xlab("Timepoints") +
+ylab("Frequency of Clones")
+
+ggsave("tcrtime.png",width = 16, height = 5,dpi = 300)
