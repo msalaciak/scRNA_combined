@@ -318,3 +318,57 @@ duplicate.bcr.tcr <-filter(pbmc.combined.cellrep@meta.data, barcode %in% dups)
 
 pbmc.combined.cellrep <- combineExpression(df, pbmc.combined.cellrep, groupBy = "sample")
 
+
+
+
+## prepare tcr data for scanpy integration
+timepoint1.tcell$barcode = paste(timepoint1.tcell$barcode,"_1",sep = "")
+timepoint2.tcell$barcode = paste(timepoint2.tcell$barcode,"_2",sep = "")
+timepoint3.tcell$barcode = paste(timepoint3.tcell$barcode,"_3",sep = "")
+timepoint4.tcell$barcode = paste(timepoint4.tcell$barcode,"_4",sep = "")
+timepoint5.tcell$barcode = paste(timepoint5.tcell$barcode,"_5",sep = "")
+timepoint6.tcell$barcode = paste(timepoint6.tcell$barcode,"_6",sep = "")
+
+write.csv(timepoint1.tcell,'timepoint1-tcell.csv')
+write.csv(timepoint2.tcell,'timepoint2-tcell.csv')
+write.csv(timepoint3.tcell,'timepoint3-tcell.csv')
+write.csv(timepoint4.tcell,'timepoint4-tcell.csv')
+write.csv(timepoint5.tcell,'timepoint5-tcell.csv')
+write.csv(timepoint6.tcell,'timepoint6-tcell.csv')
+
+
+t1<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "1")
+t2<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "2")
+t3<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "3")
+t4<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "4")
+t5<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "5")
+t6<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "6")
+
+
+
+sceasy::convertFormat(t1, from="seurat", to="anndata",
+                      outFile='t1.h5ad')
+sceasy::convertFormat(t2, from="seurat", to="anndata",
+                      outFile='t2.h5ad')
+sceasy::convertFormat(t3, from="seurat", to="anndata",
+                      outFile='t3.h5ad')
+sceasy::convertFormat(t4, from="seurat", to="anndata",
+                      outFile='t4.h5ad')
+sceasy::convertFormat(t5, from="seurat", to="anndata",
+                      outFile='t5.h5ad')
+sceasy::convertFormat(t6, from="seurat", to="anndata",
+                      outFile='t6.h5ad')
+
+
+rm(t1)
+rm(t2)
+rm(t3)
+rm(t4)
+rm(t5)
+rm(t6)
+
+
+
+
+
+

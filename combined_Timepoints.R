@@ -283,8 +283,8 @@ kegg_cluster2 <- gseKEGG(geneList= cluster2_logfc,
                eps=0)
 
 
-FeaturePlot(object = pbmc.combined, features = c("CD3D","CD3G","CD3E"), cols = c("grey", "red"), reduction = "umap", label=TRUE)
-FeaturePlot(object = pbmc.combined, features = c("CD4"), cols = c("grey", "red"), reduction = "umap", label=TRUE)
+FeaturePlot(object = pbmc.combined, features = c("CD3D","CD3G","CD3E"), cols = c("grey", "red"), reduction = "umap")
+FeaturePlot(object = pbmc.combined, features = c("CD4"), cols = c("grey", "red"), reduction = "umap")
 FeaturePlot(object = pbmc.combined, features = c("CD8A","CD8B"), cols = c("grey", "red"), reduction = "umap", label=TRUE)
 FeaturePlot(object = pbmc.combined, features = c("CD8A","CD8B"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="Timepoint")
 FeaturePlot(object = pbmc.combined, features = c("CD8A","CD8B"), cols = c("grey", "red"), reduction = "umap", label=TRUE,split.by="iRAE")
@@ -453,12 +453,7 @@ for (i in 1:20){
   }
 }
 
-# to test and see if the findMarkers function works
-test_markers <- FindMarkers(pbmc.combined, ident.1 = "1", ident.2="2",group.by="Timepoint",
-                       only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0,subset.ident = "CD8 Exhausted")
-test_markers <- cbind(gene = rownames(test_markers), test_markers)
-rownames(test_markers) <- 1:nrow(test_markers)
-test_markers<- test_markers[, c(2,3,4,5,6,1)]
+
 
 
 
@@ -850,4 +845,17 @@ nk_2v5<- nk_2v5[, c(2,3,4,5,6,1)]
  View(filter(cluster12.avgLOG_timepoint, gene %in% c("TCF7","TIGIT","TOX","PDCD1","LAG3","HAVCR2","CD244","EOMES","IFNG","KLRG1")))
  View(filter(cluster17.avgLOG_timepoint, gene %in% c("TCF7","TIGIT","TOX","PDCD1","LAG3","HAVCR2","CD244","EOMES","IFNG","KLRG1")))
  View(filter(cluster18.avgLOG_timepoint, gene %in% c("TCF7","TIGIT","TOX","PDCD1","LAG3","HAVCR2","CD244","EOMES","IFNG","KLRG1")))
+ 
+ 
+ 
+ # to test and see if the findMarkers function works
+ cd8.tcell1.1v4 <- FindMarkers(pbmc.combined, ident.1 = "1", ident.2="4",group.by="Timepoint",
+                               only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0,subset.ident = "CD8 t-cell 1")
+ cd8.tcell1.1v4 <- cbind(gene = rownames(cd8.tcell1.1v4), cd8.tcell1.1v4)
+ rownames(cd8.tcell1.1v4) <- 1:nrow(cd8.tcell1.1v4)
+ cd8.tcell1.1v4<- cd8.tcell1.1v4[, c(2,3,4,5,6,1)]
+ 
+ 
+ 
+FeaturePlot(object = pbmc.combined, features = c("CD68","FCGR2A","CSF1R"), cols = c("grey", "red"), reduction = "umap")
  

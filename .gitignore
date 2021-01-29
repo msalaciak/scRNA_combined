@@ -31,6 +31,7 @@ tab_1.png
 cell_count.csv
 cd8explot.png
 cluster11_test_plot.png
- cell_count.csv
+cell_count.csv
 *.csv
 *.png
+sct.integrated.rds
