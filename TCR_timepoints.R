@@ -165,7 +165,7 @@ filter(tp1_tcr@meta.data, t_cdr3s_aa == "TRB:CASSLTGTTYNEQFF")$t_barcode
 
 DimPlot(pbmc.combined.cellrep, label=F,  cells.highlight= filter(pbmc.combined.cellrep@meta.data, t_cdr3s_aa == "TRB:CASSLTGTTYNEQFF")$t_barcode,split.by="Timepoint")
 
-DimPlot(pbmc.combined.cellrep, label=F,  cells.highlight= filter(pbmc.combined.cellrep@meta.data, t_cdr3s_aa == "TRB:CASSHSATGESYEQYF")$t_barcode,split.by="Timepoint")
+DimPlot(pbmc.combined.cellrep, label=F,  cells.highlight= filter(pbmc.combined.cellrep@meta.data, t_cdr3s_aa == "TRB:CASSFSRSYEQYF")$t_barcode,split.by="Timepoint")
 
 DimPlot(pbmc.combined.cellrep, label=F,  cells.highlight= filter(pbmc.combined.cellrep@meta.data, t_cdr3s_aa == "TRB:CASSQGTGYTNTEAFF")$t_barcode,split.by="Timepoint")
 

@@ -667,6 +667,10 @@ ggplot(cluster18_ex_mark_plot, aes(x = timepoint, y = value, color = gene, group
   geom_point()+geom_line() +facet_wrap(vars(gene),scales = "free_y") +theme(legend.position="none") + ggtitle("CD8 Teff ")
 
 
+
+
+
+
 #proportion graph
 cell_proportion<-melt(cell.ident.pro, id.vars=c("Identity"))
 
@@ -858,4 +862,17 @@ nk_2v5<- nk_2v5[, c(2,3,4,5,6,1)]
  
  
 FeaturePlot(object = pbmc.combined, features = c("CD68","FCGR2A","CSF1R"), cols = c("grey", "red"), reduction = "umap")
+
+
+#cluster 17 line plots
+
+tox.cluster17.plot <- filter(cluster17.avgLOG_timepoint, gene %in% c("TCF7","TOX","PDCD1"))
+tox.cluster17.plot <-melt(tox.cluster17.plot, id.vars=c("gene"))
+tox.cluster17.plot$timepoint <- as.numeric(as.character(tox.cluster17.plot$variable))
+
+ggplot(tox.cluster17.plot, aes(x = timepoint, y = value, color = gene, group = gene)) + 
+  geom_point()+geom_line() + theme(legend.position="right") + ggtitle("CD8 T ex TOX/TCF7/PDCD1 ")
+
+
+
  
