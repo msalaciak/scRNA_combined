@@ -86,9 +86,34 @@ DoHeatmap(subset(cd8.subset,idents = c("9","10")), feature=filter(cd8.subset.clu
 DefaultAssay(pbmc.combined) <- "RNA"
 DoHeatmap(subset(pbmc.combined,idents = c("CD8 t-cell 1","CD8 t-cell 2", "CD8 t-cell 3","CD8 TEM","CD8 Exhausted" ,"CD8 Teff")), features=c("IL7R","CCR7","EOMES","GZMK","CXCR3","FGFBP2","KLRD1","TNF","IFNG","FOS","JUN","LAG3","HAVCR2","PDCD1","GZMB","ENTPD1","ITGAE")) +  scale_fill_gradientn(colors = c("blue", "white", "red"))
 
-DotPlot(subset(pbmc.combined,idents = c("CD8 t-cell 1","CD8 t-cell 2", "CD8 t-cell 3","CD8 TEM","CD8 Exhausted" ,"CD8 Teff")),
+DotPlot(subset(pbmc.combined,idents = c("CD8 Exhausted")),
         features=c("IL7R","CCR7","EOMES","GZMK","CXCR3","FGFBP2","KLRD1","TNF","IFNG","FOS","JUN","LAG3","HAVCR2","PDCD1","GZMB","ENTPD1","ITGAE"),
         split.by = "Timepoint",cols = c("blue", "red","orange","yellow","pink","purple"), dot.scale = 8) +   RotatedAxis()
 
-FeaturePlot(subset(cd8.subset,idents = c("9","10")), features=c("TOX"))
+FeaturePlot(subset(cd8.subset,idents = c("9","10")), features=c("TOX","PDCD1","NFATC1"),min.cutoff = "q10", max.cutoff = "q90",split.by="Timepoint") 
+
+
+FeaturePlot(subset(cd8.subset,idents = c("9","10")), features=c("PRF1","NME1"),min.cutoff = "q10", max.cutoff = "q90",split.by="Timepoint") 
+
+
+cd8.subset <- AddModuleScore(object = cd8.subset, features = proliferation.set, name = "proliferation.set")
+cd8.subset <- AddModuleScore(object = cd8.subset, features = resting.set, name = "resting.set")
+cd8.subset <- AddModuleScore(object = cd8.subset, features = ifn.response.set, name = "ifn.response.set")
+cd8.subset <- AddModuleScore(object = cd8.subset, features = cd8.cytotoxic.set, name = "cd8.cytotoxic.set")
+cd8.subset <- AddModuleScore(object = cd8.subset, features = cd8.cytokine.set, name = "cd8.cytokine.set")
+
+
+FeaturePlot(object = cd8.subset, features = "proliferation.set1",min.cutoff = "q10", max.cutoff = "q90", label=F, split.by = "Timepoint")
+FeaturePlot(object = cd8.subset, features = "resting.set1",min.cutoff = "q10", max.cutoff = "q90", label=F, split.by = "Timepoint")
+FeaturePlot(object = cd8.subset, features = "ifn.response.set1",min.cutoff = "q10", max.cutoff = "q90", label=F, split.by = "Timepoint")
+FeaturePlot(object = cd8.subset, features = "cd8.cytotoxic.set1",min.cutoff = "q10", max.cutoff = "q90", label=F, split.by = "Timepoint")
+FeaturePlot(object = cd8.subset, features = "cd8.cytokine.set1",min.cutoff = "q10", max.cutoff = "q90", label=F, split.by = "Timepoint")
+
+FeaturePlot(object = cd8.subset, features = "proliferation.set1",min.cutoff = "q10", max.cutoff = "q90", label=F)
+FeaturePlot(object = cd8.subset, features = "resting.set1",min.cutoff = "q10", max.cutoff = "q90", label=F)
+FeaturePlot(object = cd8.subset, features = "ifn.response.set1",min.cutoff = "q10", max.cutoff = "q90", label=F)
+FeaturePlot(object = cd8.subset, features = "cd8.cytotoxic.set1",min.cutoff = "q10", max.cutoff = "q90", label=F)
+FeaturePlot(object = cd8.subset, features = "cd8.cytokine.set1",min.cutoff = "q10", max.cutoff = "q90", label=F)
+
+
 
