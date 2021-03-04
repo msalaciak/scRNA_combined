@@ -337,12 +337,12 @@ write.csv(timepoint5.tcell,'timepoint5-tcell.csv')
 write.csv(timepoint6.tcell,'timepoint6-tcell.csv')
 
 
-t1<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "1")
-t2<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "2")
-t3<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "3")
-t4<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "4")
-t5<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "5")
-t6<- subset(x = pbmc.combined.timepoint, subset = Timepoint == "6")
+t1<- subset(x = cd8.subset.cc, subset = Timepoint == "1")
+t2<- subset(x = cd8.subset.cc, subset = Timepoint == "2")
+t3<- subset(x = cd8.subset.cc, subset = Timepoint == "3")
+t4<- subset(x = cd8.subset.cc, subset = Timepoint == "4")
+t5<- subset(x = cd8.subset.cc, subset = Timepoint == "5")
+t6<- subset(x = cd8.subset.cc, subset = Timepoint == "6")
 
 
 

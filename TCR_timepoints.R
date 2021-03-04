@@ -82,6 +82,30 @@ CloneTrack <- function(seurat.obj.1, seurat.obj.2,cell.1,fullList,plot,title) {
   }
 }
 
+CloneTrack.cluster <-function(main.obj,seurat.obj.1, seurat.obj.2,cell.1,fullList,plot,title) {
+  
+  if(plot == TRUE) {
+    p<-DimPlot(main.obj, label=F,  cells.highlight= filter(seurat.obj.2@meta.data,
+                                                                            grepl(paste(filter(seurat.obj.1@meta.data, new.idents == cell.1 & !is.na(t_cdr3s_aa))$t_cdr3s_aa, collapse="|"),
+                                                                                  seurat.obj.2@meta.data$t_cdr3s_aa))$t_barcode, cols.highlight = c("darkblue", "darkred"), cols= "grey") +ggtitle(title)
+    print(p)
+   # print( HoverLocator(plot = p, information = FetchData(seurat.obj.2, vars = c("seurat_clusters", "t_cdr3s_aa", "Timepoint"))))
+    }
+  
+  if(fullList == TRUE) {
+    
+    return(filter(seurat.obj.2@meta.data,
+                  grepl(paste(filter(seurat.obj.1@meta.data, new.idents == cell.1 & !is.na(t_cdr3s_aa))$t_cdr3s_aa, collapse="|"),
+                        seurat.obj.2@meta.data$t_cdr3s_aa)))
+    
+  } else {
+    
+    return(filter(seurat.obj.2@meta.data,
+                  grepl(paste(filter(seurat.obj.1@meta.data, new.idents == cell.1 & !is.na(t_cdr3s_aa))$t_cdr3s_aa, collapse="|"),
+                        seurat.obj.2@meta.data$t_cdr3s_aa))$t_cdr3s_aa)
+  }
+}
+
 
 matchedTCR<-filter(pbmc.combined.cellrep@meta.data,
        grepl(paste(filter(pbmc.combined.cellrep@meta.data, old.ident == "CD8 Exhausted" & !is.na(t_cdr3s_aa))$t_cdr3s_aa, collapse="|"),

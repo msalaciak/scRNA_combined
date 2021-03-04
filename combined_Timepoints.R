@@ -8,7 +8,7 @@ library(plyr)
 library(RCurl)	
 library(cowplot)
 library(clusterProfiler)
-library("org.Dm.eg.db",character.only = TRUE)
+# library("org.Dm.eg.db",character.only = TRUE)
 library(org.Dm.eg.db)
 library(DOSE)
 library(plotly)
@@ -17,6 +17,8 @@ library(enrichplot)
 library(reshape2)
 library(pheatmap)
 library(scRepertoire)
+library(EnhancedVolcano)
+library(Nebulosa)
 
 #proportion csv
 cell_proportion <- read.csv(file = 'pbmc_combined_percent_r.csv')
@@ -882,5 +884,52 @@ DoHeatmap(subset(pbmc.combined,idents = c("CD8 Exhausted","CD8 TEM"),downsample=
 
 DoHeatmap(pbmc.combined, feature=filter(cluster17.18.top30, cluster == 17| cluster == 12)$gene)
 
+
+# cell.ident.per <- cell.ident.per %>% 
+#   rename(
+#     Cluster=1,
+#     TP1=2,
+#     TP2=3,
+#     TP3=4,
+#     TP4=5,
+#     TP5=6,
+#     TP6=7
+#     
+#   )
+# 
+# cell.ident.per<-cell.ident.per <-melt(cell.ident.per, id.vars=c("Cluster"))
+# cell.ident.per <- cell.ident.per %>% 
+#   rename(
+#   timepoint = 2,
+#   percent =3
+#     
+#   )
+
+# # for (i in new.cluster.ids) {
+#   
+#   # current.df <- filter(cell.ident.per, Cluster ==i)
+#   
+#   current.df <- filter(cell.ident.per, timepoint =="TP3" | timepoint=="TP6")
+#   
+#   wt <- wilcox.test(irae ~ percent, data = cell.ident.per) 
+#   
+#   # xlabtext <- paste(i,": P = ",round(wt$p.value,4), " Timepoint 2 v 5")
+#   
+#   current.df$percent <- 100*current.df$percent
+#   
+#   print(ggplot(cell.ident.per, aes(irae, percent)) + geom_point() )
+#   
+# wt
+#   
+#   rm(xlabtext)
+#   rm(wt)
+#   rm(i)
+#   rm(current.df)
+#   
+# # }
+
+# cell.ident.per <-cell.ident.per %>%
+#   mutate(irae = ifelse(timepoint == "TP1" | timepoint == "TP4" | timepoint == "TP6" , "No",
+#                     ifelse(timepoint == "TP2" | timepoint == "TP3" |timepoint == "TP5", "Yes",NA)))
 
 

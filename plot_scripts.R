@@ -10,7 +10,94 @@ combo<-(t1+t2)
 ggsave("combo.png",width = 9, height = 5,dpi = 300)
 
 
-cell_proportion_per <- read.csv(file = 'pbmc_combined_percent_format2.csv')
+# cell_proportion_per <- read.csv(file = 'pbmc_combined_percent_format2.csv')
+cell_proportion_per <- read.csv(file = 'cd8.csv')
+
+# table1<- gt(data = cell_proportion_per) %>% tab_header(
+#   title = "Amount of Cells Per Timepoint"
+#   
+# )%>%
+#   tab_stubhead(label = "Cell Identity") %>%
+#   cols_label(
+#     N.Cells = html("N Cells"),
+#     X..Cells = html("% Cells"),
+#     N.Cells.1 = html("N Cells"),
+#     X..Cells.1 = html("% Cells"),
+#     N.Cells.2 = html("N Cells"),
+#     X..Cells.2 = html("% Cells"),
+#     N.Cells.3 = html("N Cells"),
+#     X..Cells.3 = html("% Cells"),
+#     N.Cells.4 = html("N Cells"),
+#     X..Cells.4 = html("% Cells"),
+#     N.Cells.5 = html("N Cells"),
+#     X..Cells.5 = html("% Cells"),
+#   ) %>%
+#   tab_spanner(
+#     label = "1",  
+#     columns = vars(N.Cells, X..Cells),
+#     
+#   )  %>%
+#   tab_spanner(
+#     label = "3" ,
+#     columns = vars(N.Cells.2, X..Cells.2)
+#     
+#   ) %>%
+#   tab_spanner(
+#     label = "4", 
+#     columns = vars(N.Cells.3, X..Cells.3)
+#     
+#   )  %>%
+#   tab_spanner(
+#     label = "5",
+#     columns = vars(N.Cells.4, X..Cells.4)
+#     
+#   ) %>%
+#   tab_spanner(
+#     label = "6",
+#     columns = vars(N.Cells.5, X..Cells.5)
+#     
+#   )  %>%
+#   tab_spanner(
+#     label = "2",
+#     columns = vars(N.Cells.1, X..Cells.1)
+#     
+#   )  %>%
+#   tab_row_group(
+#     group = "PBMC with T Cell Subsets",
+#     rows = 3:15) %>%
+#   tab_row_group(
+#     group = "T Cell Summary",
+#     rows = 1:2)%>%
+#   tab_style(
+#     style = list(
+#       cell_fill(color = "#ACEACE"),
+#       cell_text(weight = "bold")
+#     ),
+#     locations = cells_body(
+# 
+#       rows = c(2)
+#       )
+#   )%>%
+#   tab_style(
+#     style = list(
+#       
+#       cell_text(weight = "bold")
+#     ),
+#     locations = cells_body(
+#       
+#       rows = 16)
+#   )
+#     
+# 
+# 
+# table1 %>% gt_theme_538()
+# 
+# table1 %>% gt_theme_538() %>%
+#   gtsave(
+#     "tab_1_new.png",expand=10,vwidth = 1628,
+#     vheight = 882
+#     
+#   )
 
 table1<- gt(data = cell_proportion_per) %>% tab_header(
   title = "Amount of Cells Per Timepoint"
@@ -62,20 +149,9 @@ table1<- gt(data = cell_proportion_per) %>% tab_header(
     
   )  %>%
   tab_row_group(
-    group = "PBMC with T Cell Subsets",
-    rows = 3:15) %>%
-  tab_row_group(
-    group = "T Cell Summary",
-    rows = 1:2)%>%
-  tab_style(
-    style = list(
-      cell_fill(color = "#ACEACE"),
-      cell_text(weight = "bold")
-    ),
-    locations = cells_body(
-      
-      rows = c(1,2,10,13))
-  )%>%
+    group = "T Cell Subsets",
+    rows = 1:12) %>%
+
   tab_style(
     style = list(
       
@@ -83,16 +159,16 @@ table1<- gt(data = cell_proportion_per) %>% tab_header(
     ),
     locations = cells_body(
       
-      rows = 16)
+      rows = 13)
   )
-    
+
 
 
 table1 %>% gt_theme_538()
 
 table1 %>% gt_theme_538() %>%
   gtsave(
-    "tab_1.png",expand=10,vwidth = 1628,
+    "tab_1_new_cd8.png",expand=10,vwidth = 1628,
     vheight = 882
     
   )
