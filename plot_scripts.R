@@ -1,7 +1,7 @@
-pub<-DimPlot(timepoint_1.subset,reduction = "umap",label = TRUE ,repel = TRUE, label.size = 2.9) + theme_classic() + NoLegend() 
+pub<-DimPlot(subset(pbmc.combined.cellrep, idents = c("CD8 t-cell 1","CD8 t-cell 2", "CD8 t-cell 3","CD8 TEM","CD8 Exhausted" ,"CD8 Teff")),reduction = "umap",label = TRUE ,repel = TRUE, label.size = 2.9) + theme_classic() + NoLegend() 
 
 
-ggsave("pub.png",width = 5, height = 5,dpi = 300)
+ggsave("tcr-track.png",width = 12, height = 5,dpi = 300)
 
 
 

@@ -61,7 +61,7 @@ cd8.subset.markers9v8.t4<- cd8.subset.markers9v8.t4[, c(2,3,4,5,6,1)]
 
 #rownames(cd8.subset.markers9v8) <- cd8.subset.markers9v8$gene IF YOU WANT TO RENAME INDEX WITH GENES FOR PLOTTING.
 
-
+Idents(cd8.subset.cc) <- "seurat_clusters"
 # for loop to subset timepoint avglogfoldchange DEG data
 for (i in 0:11){
   print("cluster ")
@@ -83,7 +83,9 @@ for (i in 0:11){
 
 }
 
-
+test.1<-log1p(AverageExpression(subset(cd8.subset.cc,Timepoint==6,idents="CD8 TEFF"), verbose = FALSE)$RNA)
+test.1 <-as.data.frame(test.1)
+test.1$gene <- rownames(test.1)
 
 
 
@@ -171,45 +173,77 @@ DimPlot(cd8.subset.cc, label=F,  cells.highlight=filter(cd8.subset@meta.data,
 DimPlot(cd8.subset.cc, label=F,  cells.highlight= filter(cd8.subset.cc@meta.data, t_cdr3s_aa == "TRB:CASSLTGTTYNEQFF")$t_barcode,split.by="Timepoint")
 
 
-cd8.3v2.t4 <- FindMarkers(subset(cd8.subset.cc,Timepoint ==4), ident.1 = "3", ident.2="2",group.by="seurat_clusters",
-                                        only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0.05)
+cd8.teff.1v6 <- FindMarkers(cd8.subset.cc, ident.1 = "1", ident.2="6",group.by="Timepoint",
+                                        only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0.05, subset.ident = "CD8 TEFF")
 
-cd8.3v2.t4 <- cbind(gene = rownames(cd8.3v2.t4), cd8.3v2.t4)
-cd8.3v2.t4<- cd8.3v2.t4[, c(2,3,4,5,6,1)]
+cd8.teff.1v6 <- cbind(gene = rownames(cd8.teff.1v6), cd8.teff.1v6)
+cd8.teff.1v6<- cd8.teff.1v6[, c(2,3,4,5,6,1)]
 
 
 
-EnhancedVolcano(cd8.3v2.t1,
-                lab = rownames(cd8.3v2.t1),
+EnhancedVolcano(cd8.teff.1v4,
+                lab = rownames(cd8.teff.1v4),
                 x = 'avg_log2FC',
                  y = 'p_val_adj',
                 pCutoff = 0.05,
                 FCcutoff = 1,
-                title = 'CD8 TEFF vs CD8 TEM-1 Timepoint 1')
+                title = 'CD8 TEFF Timepoint 1 vs Timepoint 4',
+                drawConnectors = TRUE,
+                widthConnectors = 0.75)
 
-EnhancedVolcano(cd8.3v2.t4,
-                lab = rownames(cd8.3v2.t4),
+
+
+EnhancedVolcano(cd8.tem1.1v4,
+                lab = rownames(cd8.tem1.1v4),
                 x = 'avg_log2FC',
                 y = 'p_val_adj',
                 pCutoff = 0.05,
                 FCcutoff = 1,
-                title = 'CD8 TEFF vs CD8 TEM-1 Timepoint 4')
+                title = 'CD8 TEM-1 Timepoint 1 vs Timepoint 4',
+                drawConnectors = TRUE,
+                widthConnectors = 0.75)
 
-EnhancedVolcano(cd8.subset.markers.8.t2,
-                lab = rownames(cd8.subset.markers.8.t2),
+EnhancedVolcano(cd8.teff.1v6,
+                lab = rownames(cd8.teff.1v6),
                 x = 'avg_log2FC',
                 y = 'p_val_adj',
                 pCutoff = 0.05,
                 FCcutoff = 1,
-                title = 'T-EX Cluster 8 Timepoint 2')
+                title = 'CD8 TEFF Timepoint 1 vs Timepoint 6',
+                drawConnectors = TRUE,
+                widthConnectors = 0.75)
 
-EnhancedVolcano(cd8.subset.markers.8.t5,
-                lab = rownames(cd8.subset.markers.8.t5),
+
+EnhancedVolcano(cd8.tem1.1v6,
+                lab = rownames(cd8.tem1.1v6),
                 x = 'avg_log2FC',
                 y = 'p_val_adj',
                 pCutoff = 0.05,
                 FCcutoff = 1,
-                title = 'T-EX Cluster 8 Timepoint 5')
+                title = 'CD8 TEM-1 Timepoint 1 vs Timepoint 6',
+                drawConnectors = TRUE,
+                widthConnectors = 0.75)
+
+EnhancedVolcano(cd8.teff.2v5,
+                lab = rownames(cd8.teff.2v5),
+                x = 'avg_log2FC',
+                y = 'p_val_adj',
+                pCutoff = 0.05,
+                FCcutoff = 1,
+                title = 'CD8 TEFF Timepoint 2 vs Timepoint 5',
+                drawConnectors = TRUE,
+                widthConnectors = 0.75)
+
+EnhancedVolcano(cd8.tem1.2v5,
+                lab = rownames(cd8.tem1.2v5),
+                x = 'avg_log2FC',
+                y = 'p_val_adj',
+                pCutoff = 0.05,
+                FCcutoff = 1,
+                title = 'CD8 TEM-1 Timepoint 2 vs Timepoint 5',
+                drawConnectors = TRUE,
+                widthConnectors = 0.75)
+
 
 
 ### cell cycle data
@@ -243,19 +277,25 @@ plot_density(subset(cd8.subset.cc,Timepoint==x), features=c("CD69","FOS","JUN","
 }
 
 
-p<-plot_density(subset(cd8.subset.cc,Timepoint==5), features=c("MTOR1","PI3K_AKT_MTOR1","OXIDATIVE_PHOSPHORYLATION1","GLYCOLYSIS1"))
-p1<-plot_density(subset(cd8.subset.cc,Timepoint==5), features=c("GZMA","GZMH","GZMB","GZMK","PRF1","GNLY","KLRG1","KLRF1","KLRC1","KLRD1","IFNG"))
-p2<-plot_density(subset(cd8.subset.cc,Timepoint==5), features=c("IL7R","SELL","CCR7","CD28","CD27","CD44"))
-p3<-plot_density(subset(cd8.subset.cc,Timepoint==5), features=c("CD69","FOS","JUN","LAMP1","HLA-DRA","ICOS")) 
+p<-plot_density(subset(cd8.subset.cc,idents=c("CD8 TEX-1","CD8 TEX-2"),Timepoint==2), features=c("MTOR1","PI3K_AKT_MTOR1","OXIDATIVE_PHOSPHORYLATION1","GLYCOLYSIS1"))
+p1<-plot_density(subset(cd8.subset.cc,idents=c("CD8 TEX-1","CD8 TEX-2"),Timepoint==2), features=c("GZMA","GZMH","GZMB","GZMK","PRF1","GNLY","KLRG1","KLRF1","KLRC1","KLRD1","IFNG",'MKI67'))
+p2<-plot_density(subset(cd8.subset.cc,idents=c("CD8 TEX-1","CD8 TEX-2"),Timepoint==2), features=c("IL7R","SELL","CCR7","CD28","CD27","CD44"))
+p3<-plot_density(subset(cd8.subset.cc,idents=c("CD8 TEX-1","CD8 TEX-2"),Timepoint==2), features=c("CD69","FOS","JUN","LAMP1","HLA-DRA","ICOS")) 
+# p4<-plot_density(subset(cd8.subset.cc,Timepoint==2), features=c("PDCD1","EOMES","TOX","CD244","LAG3","CTLA4",'HAVCR2','TBX21','TCF7')) 
 
 p + plot_annotation(
-  title = 'Timepoint 5')
+  title = 'Timepoint 2')
 p1 + plot_annotation(
-  title = 'Timepoint 5')
+  title = 'Timepoint 2')
 p2 + plot_annotation(
-  title = 'Timepoint 5')
+  title = 'Timepoint 2')
 p3 + plot_annotation(
+  title = 'Timepoint 2')
+p4 + plot_annotation(
   title = 'Timepoint 5')
+
+VlnPlot(subset(cd8.subset.cc,Timepoint==1), features=c("PDCD1","EOMES","TOX","CD244","LAG3","CTLA4",'HAVCR2','TBX21','TCF7')) 
+
 
 TCR_4 <- filter(cd8.subset.cc@meta.data, t_cdr3s_aa == "TRB:CASSQGTGYTNTEAFF")$t_barcode
 TCR_20 <- filter(cd8.subset.cc@meta.data, t_cdr3s_aa == "TRA:CASLNQAGTALIF")$t_barcode
@@ -288,3 +328,6 @@ DimPlot(cd8.subset.cc, label=F,  cells.highlight= list(TCR_4,TCR_20,TCR_9,TCR_36
   scale_color_manual(labels = c("unselected","210_TCR","43_TCR","11_TCR","32_TCR","22_TCR","36_TCR","9_TCR","20_TCR","881_TCR","3873_TCR","187_TCR","3801_TCR","59_TCR","374_TCR","1475_TCR","75_TCR","4_TCR"), 
                      values = c("darkgrey", "blue","darkolivegreen3","brown4","black","deeppink2","blueviolet","red","orange","darkgoldenrod3","darkseagreen","deepskyblue","cyan","coral","cadetblue4","burlywood","chartreuse1","darkslateblue")) +
   labs(color = "Top TCR's Across Timepoint") 
+
+
+

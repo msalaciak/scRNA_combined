@@ -73,8 +73,8 @@ cd8.subset.cc.full.cluster0v6.4<- cd8.subset.cc.full.cluster0v6.4[, c(2,3,4,5,6,
 
 
 ## quick code to double check pct.1/pct.2
-length(WhichCells(object = cd8.subset.cc, idents = "3"))
-length(WhichCells(object = cd8.subset.cc, idents = "3", expression = JUN > 0))
+length(WhichCells(object = subset(cd8.subset.cc,Timepoint==6), idents = "CD8 TEFF"))
+length(WhichCells(object = subset(cd8.subset.cc,Timepoint==6), idents = "CD8 TEFF", expression = PDCD1 > 0.001))
 
 new.cluster.ids <- c("CD8 TEM-like", "CD8 TCM-like", "CD8 TEM-1", "CD8 TEFF", "CD8 TEM-2", "CD8 NAIVE", 
                      "CD8 TEM-3", "CD8 TEM-4", "CD8 TEX-1","CD8 TEX-2","CD8 Unknown-1","CD8 Unknown-2")

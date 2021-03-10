@@ -27,12 +27,12 @@ cluster0.genelist <- sort(cluster0.genelist, decreasing = TRUE)
 ## 2nd column is fold change
 
 ## feature 1: numeric vector
-cluster0.genelist <- cd8.subset.markers9v8.t2[,2]
-cluster0.genelist <- filter(cd8.subset.markers9v8.t5, pct.1>=.20, p_val_adj >=0.05)[,2]
+cluster0.genelist <- cd8.teff.1v6[,2]
+cluster0.genelist <- filter(cd8.tem1.1v4, pct.1>=.10, p_val_adj >=0.05)[,2]
 
 ## feature 2: named vector
-names(cluster0.genelist) <- as.character(cd8.subset.markers9v8.t1[,6])
-names(cluster0.genelist) <- as.character(filter(cd8.subset.markers9v8.t5, pct.1>=.20,p_val_adj >=0.05)[,6])
+names(cluster0.genelist) <- as.character(cd8.teff.1v6[,6])
+names(cluster0.genelist) <- as.character(filter(cd8.tem1.1v4, pct.1>=.10,p_val_adj >=0.05)[,6])
 
 ## feature 3: decreasing order
 cluster0.genelist <- sort(cluster0.genelist, decreasing = TRUE)
@@ -44,7 +44,7 @@ em2 <- GSEA(cluster0.genelist, TERM2GENE = m_t2g)
 
 # ridgeplot(em2,showCategory = 20) + ggtitle("CD8 Exhausted 2v5")
 
-dotplot(em2,showCategory = 20,split=".sign")+ facet_grid(.~.sign)  + ggtitle("CD 8 T-EX Cluster 8 Timepoint 5 GSEA")
+dotplot(em2,showCategory = 20,split=".sign")+ facet_grid(.~.sign)  + ggtitle("CD 8 TEM-1 Timepoint 1 vs Timpoint 4")
 
 #GO
 gse <- gseGO(geneList=cluster0.genelist, 
@@ -58,7 +58,7 @@ gse <- gseGO(geneList=cluster0.genelist,
              OrgDb =org.Hs.eg.db, 
              pAdjustMethod = "none")
 
-dotplot(gse, showCategory=15, split=".sign") + facet_grid(.~.sign)  + ggtitle("CD 8 T-EX Cluster 8 Timepoint 5 GSE-GO")
+dotplot(gse, showCategory=15, split=".sign") + facet_grid(.~.sign)  + ggtitle("CD 8 TEM-1 Timepoint 1 vs Timpoint 4 GSE-GO")
 
 # gene.test <- names(cluster0.genelist)[abs(cluster0.genelist) >1]
 gene.test.up <- names(cluster0.genelist)[cluster0.genelist >= 1]
@@ -77,7 +77,7 @@ gse.up <- enrichGO(gene          = gene.test.up$ENTREZID,
                 pvalueCutoff  = 0.05,
                 qvalueCutoff  = 0.05,
                 )
-dotplot(gse.up, showCategory =30)  + ggtitle("CD 8 T-EX Cluster 8 Timepoint 5  GO UP")
+dotplot(gse.up, showCategory =30)  + ggtitle("CD 8 TEM-1 Timepoint 1 vs Timpoint 4 GO UP")
 
 gse.down <- enrichGO(gene          = gene.test.down$ENTREZID,
                    universe      = gene.test.2$ENTREZID,
@@ -87,5 +87,5 @@ gse.down <- enrichGO(gene          = gene.test.down$ENTREZID,
                    pvalueCutoff  = 0.05,
                    qvalueCutoff  = 0.05,
 )
-dotplot(gse.down, showCategory =30)  + ggtitle("CD 8 T-EX Cluster 8 Timepoint 5 GO DOWN")
+dotplot(gse.down, showCategory =30)  + ggtitle("CD 8 TEM-1 Timepoint 1 vs Timpoint 4 GO DOWN")
 

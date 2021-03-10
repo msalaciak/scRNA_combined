@@ -19,6 +19,7 @@ library(pheatmap)
 library(scRepertoire)
 library(EnhancedVolcano)
 library(Nebulosa)
+options(ggrepel.max.overlaps = Inf)
 
 #proportion csv
 cell_proportion <- read.csv(file = 'pbmc_combined_percent_r.csv')
@@ -728,11 +729,10 @@ tcellef_1v4 <- cbind(gene = rownames(tcellef_1v4), tcellef_1v4)
 rownames(tcellef_1v4) <- 1:nrow(tcellef_1v4)
 tcellef_1v4<- tcellef_1v4[, c(2,3,4,5,6,1)]
 
-nk_1v4 <- FindMarkers(pbmc.combined, ident.1 = "1", ident.2="4",group.by="Timepoint",
-                      only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0,subset.ident = "NK")
-nk_1v4 <- cbind(gene = rownames(nk_1v4), nk_1v4)
-rownames(nk_1v4) <- 1:nrow(nk_1v4)
-nk_1v4<- nk_1v4[, c(2,3,4,5,6,1)]
+nk_2v5 <- FindMarkers(pbmc.combined, ident.1 = "2", ident.2="5",group.by="Timepoint",
+                      only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0.05,subset.ident = "NK")
+nk_2v5 <- cbind(gene = rownames(nk_2v5), nk_2v5)
+nk_2v5<- nk_2v5[, c(2,3,4,5,6,1)]
 
 #compare 2 and 3 in remission and compare 5 and 6 in presence of disease, and IRAE 2 and 5
 
@@ -931,5 +931,6 @@ DoHeatmap(pbmc.combined, feature=filter(cluster17.18.top30, cluster == 17| clust
 # cell.ident.per <-cell.ident.per %>%
 #   mutate(irae = ifelse(timepoint == "TP1" | timepoint == "TP4" | timepoint == "TP6" , "No",
 #                     ifelse(timepoint == "TP2" | timepoint == "TP3" |timepoint == "TP5", "Yes",NA)))
+
 
 
