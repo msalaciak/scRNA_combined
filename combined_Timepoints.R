@@ -1,14 +1,12 @@
-library(dplyr)	
 library(Seurat)	
 library(patchwork)	
-library(ggplot2)	
 library(Matrix)	
 library(tidyverse)
 library(plyr)
 library(RCurl)	
 library(cowplot)
 library(clusterProfiler)
-# library("org.Dm.eg.db",character.only = TRUE)
+library("org.Dm.eg.db",character.only = TRUE)
 library(org.Dm.eg.db)
 library(DOSE)
 library(plotly)
@@ -39,12 +37,7 @@ timepoint_6.data <- Read10X(data.dir ="/home/matthew/datatransfer/mercier/180251
 
 
 #create seurat objects for each
-timepoint_1 <-CreateSeuratObject(counts = timepoint_1.data, project = "pbmc timepoint 1", min.cells =3,min.features=200)
-timepoint_2 <-CreateSeuratObject(counts = timepoint_2.data, project = "pbmc timepoint 2", min.cells =3,min.features=200)
-timepoint_3 <-CreateSeuratObject(counts = timepoint_3.data, project = "pbmc timepoint 3", min.cells =3,min.features=200)
-timepoint_4 <-CreateSeuratObject(counts = timepoint_4.data, project = "pbmc timepoint 4", min.cells =3,min.features=200)
-timepoint_5 <-CreateSeuratObject(counts = timepoint_5.data, project = "pbmc timepoint 5", min.cells =3,min.features=200)
-timepoint_6 <-CreateSeuratObject(counts = timepoint_6.data, project = "pbmc timepoint 6", min.cells =3,min.features=200)
+rm
 
 #add metadata for each object
 timepoint_1@meta.data$Timepoint <- "1"

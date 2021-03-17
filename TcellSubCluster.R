@@ -173,21 +173,29 @@ DimPlot(cd8.subset.cc, label=F,  cells.highlight=filter(cd8.subset@meta.data,
 DimPlot(cd8.subset.cc, label=F,  cells.highlight= filter(cd8.subset.cc@meta.data, t_cdr3s_aa == "TRB:CASSLTGTTYNEQFF")$t_barcode,split.by="Timepoint")
 
 
-cd8.teff.1v6 <- FindMarkers(cd8.subset.cc, ident.1 = "1", ident.2="6",group.by="Timepoint",
-                                        only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0.05, subset.ident = "CD8 TEFF")
+cd8.teff.1v4 <- FindMarkers(cd8.subset.cc, ident.1 = "1", ident.2="6",group.by="Timepoint",
+                                        only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0.05, subset.ident = "CD8 TEM-1")
 
-cd8.teff.1v6 <- cbind(gene = rownames(cd8.teff.1v6), cd8.teff.1v6)
-cd8.teff.1v6<- cd8.teff.1v6[, c(2,3,4,5,6,1)]
+cd8.teff.2 <- FindMarkers(cd8.subset.cc, ident.1 = "1", ident.2="6",group.by="Timepoint",
+                            only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0.05, subset.ident = "CD8 TEM-1")
+
+cd8.teff.1v4 <- cbind(gene = rownames(cd8.teff.1v4), cd8.teff.1v4)
+cd8.teff.1v4<- cd8.teff.1v4[, c(2,3,4,5,6,1)]
 
 
+cd8.tex2 <- FindMarkers(subset(cd8.subset.cc,Timepoint ==6), ident.1 = "9",group.by="seurat_clusters",
+                                        only.pos = FALSE, min.pct = -Inf,logfc.threshold = 0.05)
 
-EnhancedVolcano(cd8.teff.1v4,
-                lab = rownames(cd8.teff.1v4),
+cd8.tex2 <- cbind(gene = rownames(cd8.tex2), cd8.tex2)
+cd8.tex2<- cd8.tex2[, c(2,3,4,5,6,1)]
+
+EnhancedVolcano(cd8.tex2,
+                lab = rownames(cd8.tex2),
                 x = 'avg_log2FC',
                  y = 'p_val_adj',
                 pCutoff = 0.05,
                 FCcutoff = 1,
-                title = 'CD8 TEFF Timepoint 1 vs Timepoint 4',
+                title = 'CD8 TEX-2 Timepoint 6',
                 drawConnectors = TRUE,
                 widthConnectors = 0.75)
 
@@ -329,5 +337,7 @@ DimPlot(cd8.subset.cc, label=F,  cells.highlight= list(TCR_4,TCR_20,TCR_9,TCR_36
                      values = c("darkgrey", "blue","darkolivegreen3","brown4","black","deeppink2","blueviolet","red","orange","darkgoldenrod3","darkseagreen","deepskyblue","cyan","coral","cadetblue4","burlywood","chartreuse1","darkslateblue")) +
   labs(color = "Top TCR's Across Timepoint") 
 
-
+# convert to scanpy
+# SaveH5Seurat(cd8.subset.cc, filename = "cd8.h5Seurat")
+# Convert("cd8.h5Seurat", dest = "h5ad")
 
